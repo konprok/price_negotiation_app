@@ -72,8 +72,32 @@ public class Startup
 
         app.UseHttpsRedirection();
         app.UseRouting();
+
+        app.Use(async (context, next) =>
+                {
+                    if (!context.Request.Cookies.TryGetValue("ClientId", out var anonIdStr))
+                    {
+                        // Cookie nie istnieje -> generujemy nowe
+                        var newId = Guid.NewGuid().ToString();
+                        context.Response.Cookies.Append("ClientId", newId, new CookieOptions
+                        {
+                            HttpOnly = true,
+                            SameSite = SameSiteMode.Strict,
+                            Expires = DateTimeOffset.UtcNow.AddDays(30) // np. 30 dni
+                        });
+                        context.Items["ClientId"] = newId;
+                    }
+                    else
+                    {
+                        // Cookie istnieje -> zapisujemy w HttpContext.Items
+                        context.Items["ClientId"] = anonIdStr;
+                    }
+
+                    await next.Invoke();
+                });
+
         app.UseAuthorization();
-        
+
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllerRoute(

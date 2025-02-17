@@ -8,7 +8,6 @@ public class ProductEntity
     public decimal BasePrice { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? ModifiedAt { get; set; }
-
     public Guid OwnerId { get; set; }
     public UserEntity CreatedBy { get; set; } = null!;
     public ICollection<NegotiationEntity>? Negotiations { get; set; }
