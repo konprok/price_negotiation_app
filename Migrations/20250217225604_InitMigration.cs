@@ -13,6 +13,24 @@ namespace PriceNegotiationApp.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "product_entity",
+                columns: table => new
+                {
+                    product_id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    base_price = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    modified_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    owner_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_product_entity", x => x.product_id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "user_entity",
                 columns: table => new
                 {
@@ -24,30 +42,6 @@ namespace PriceNegotiationApp.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_user_entity", x => x.user_id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "product_entity",
-                columns: table => new
-                {
-                    product_id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
-                    base_price = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    modified_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    owner_id = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_product_entity", x => x.product_id);
-                    table.ForeignKey(
-                        name: "FK_product_entity_user",
-                        column: x => x.owner_id,
-                        principalTable: "user_entity",
-                        principalColumn: "user_id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -72,12 +66,6 @@ namespace PriceNegotiationApp.Migrations
                         column: x => x.product_id,
                         principalTable: "product_entity",
                         principalColumn: "product_id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_negotiation_entity_user",
-                        column: x => x.owner_id,
-                        principalTable: "user_entity",
-                        principalColumn: "user_id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -105,19 +93,9 @@ namespace PriceNegotiationApp.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_negotiation_entity_owner_id",
-                table: "negotiation_entity",
-                column: "owner_id");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_negotiation_entity_product_id",
                 table: "negotiation_entity",
                 column: "product_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_product_entity_owner_id",
-                table: "product_entity",
-                column: "owner_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_proposition_entity_negotiation_id",
@@ -132,13 +110,13 @@ namespace PriceNegotiationApp.Migrations
                 name: "proposition_entity");
 
             migrationBuilder.DropTable(
+                name: "user_entity");
+
+            migrationBuilder.DropTable(
                 name: "negotiation_entity");
 
             migrationBuilder.DropTable(
                 name: "product_entity");
-
-            migrationBuilder.DropTable(
-                name: "user_entity");
         }
     }
 }

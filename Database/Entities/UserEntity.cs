@@ -6,10 +6,4 @@ public sealed class UserEntity
     public required string UserName { get; set; }
     public required string PasswordHash { get; set; }
     public required string Email { get; set; }
-
-    public ICollection<ProductEntity> CreatedProducts { get; set; } 
-        = new List<ProductEntity>();
-
-    public ICollection<NegotiationEntity> Negotiations { get; set; } 
-        = new List<NegotiationEntity>();
 }

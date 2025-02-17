@@ -40,12 +40,6 @@ public class NegotiationEntityConfiguration : IEntityTypeConfiguration<Negotiati
         builder.Property(n => n.ModyfiedAt)
                .HasColumnName("modified_at");
 
-        builder.HasOne(n => n.User)
-               .WithMany(u => u.Negotiations)
-               .HasForeignKey(n => n.OwnerId)
-               .OnDelete(DeleteBehavior.Restrict)
-               .HasConstraintName("FK_negotiation_entity_user");
-
         builder.HasOne(n => n.Product)
                .WithMany(p => p.Negotiations!)
                .HasForeignKey(n => n.ProductId)

@@ -1,3 +1,5 @@
+using PriceNegotiationApp.Models.Dtos;
+
 namespace PriceNegotiationApp.Database.Entities;
 
 public class ProductEntity
@@ -7,8 +9,20 @@ public class ProductEntity
     public string? Description { get; set; }
     public decimal BasePrice { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime? ModifiedAt { get; set; }
+    public DateTime ModifiedAt { get; set; }
     public Guid OwnerId { get; set; }
-    public UserEntity CreatedBy { get; set; } = null!;
     public ICollection<NegotiationEntity>? Negotiations { get; set; }
+
+
+    public ProductEntity()
+    {
+    }
+
+    public ProductEntity(Product product)
+    {
+        Name = product.Name;
+        Description = product.Description;
+        BasePrice = product.BasePrice;
+        CreatedAt = DateTime.UtcNow;
+    }
 }

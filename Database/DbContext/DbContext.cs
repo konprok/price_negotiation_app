@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PriceNegotiationApp.Database.Configuration;
 using PriceNegotiationApp.Database.Entities;
@@ -6,11 +5,11 @@ using PriceNegotiationApp.Services.Interfaces;
 
 namespace PriceNegotiationApp.Database.DbContext;
 
-public class UserDbContext : Microsoft.EntityFrameworkCore.DbContext
+public class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
 {
     private readonly IPasswordHasher _passwordHasher;
 
-    public UserDbContext(DbContextOptions<UserDbContext> options, IPasswordHasher passwordHasher) : base(options)
+    public AppDbContext(DbContextOptions<AppDbContext> options, IPasswordHasher passwordHasher) : base(options)
     {
         _passwordHasher = passwordHasher;
     }

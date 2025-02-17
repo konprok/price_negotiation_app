@@ -39,12 +39,5 @@ public class ProductEntityConfiguration : IEntityTypeConfiguration<ProductEntity
 
         builder.Property(p => p.OwnerId)
                .HasColumnName("owner_id");
-
-
-        builder.HasOne(p => p.CreatedBy)
-               .WithMany(u => u.CreatedProducts)
-               .HasForeignKey(p => p.OwnerId)
-               .OnDelete(DeleteBehavior.Restrict) 
-               .HasConstraintName("FK_product_entity_user");
     }
 }

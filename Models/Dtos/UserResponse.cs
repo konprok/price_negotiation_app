@@ -2,9 +2,20 @@
 
 namespace PriceNegotiationApp.Models.Dtos;
 
-public sealed class UserResponse(UserEntity userEntity)
+public sealed class UserResponse
 {
-    public Guid Id {get; set;} = userEntity.Id;
-    public string Email { get; set; } = userEntity.Email;
-    public string Name { get; set; } = userEntity.UserName;
+    public UserResponse()
+    {
+    }
+
+    public Guid Id { get; set; }
+    public string Email { get; set; }
+    public string Name { get; set; }
+
+    public UserResponse(UserEntity userEntity)
+    {
+        Id = userEntity.Id;
+        Name = userEntity.UserName;
+        Email = userEntity.Email;
+    }
 }

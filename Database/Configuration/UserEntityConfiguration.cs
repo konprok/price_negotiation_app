@@ -30,17 +30,5 @@ public class UserEntityConfiguration : IEntityTypeConfiguration<UserEntity>
                .IsRequired()
                .HasMaxLength(255)
                .HasColumnName("email");
-
-        builder.HasMany(u => u.CreatedProducts)
-            .WithOne(p => p.CreatedBy)
-            .HasForeignKey(p => p.OwnerId)
-            .OnDelete(DeleteBehavior.Restrict)
-            .HasConstraintName("FK_Products_CreatedById");
-
-        builder.HasMany(u => u.Negotiations)
-            .WithOne(n => n.User)
-            .HasForeignKey(n => n.OwnerId)
-            .OnDelete(DeleteBehavior.Restrict)
-            .HasConstraintName("FK_Negotiations_UserId");
     }
 }

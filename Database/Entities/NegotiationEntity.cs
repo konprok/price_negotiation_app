@@ -12,6 +12,5 @@ public class NegotiationEntity
     public DateTime CreatedAt { get; set; }
     public DateTime? ModyfiedAt { get; set; }
     public ProductEntity Product { get; set; } = null!;
-    public UserEntity User { get; set; } = null!;
-    public ICollection<PropositionEntity> Proposition { get; set; } = new List<PropositionEntity>();
+    public IList<PropositionEntity> Proposition { get; set; } = new List<PropositionEntity>();
 }

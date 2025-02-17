@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PriceNegotiationApp.Database.DbContext;
@@ -11,12 +10,10 @@ using PriceNegotiationApp.Database.DbContext;
 
 namespace PriceNegotiationApp.Migrations
 {
-    [DbContext(typeof(UserDbContext))]
-    [Migration("20250217192033_InitMigration")]
-    partial class InitMigration
+    [DbContext(typeof(AppDbContext))]
+    partial class AppDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -66,8 +63,6 @@ namespace PriceNegotiationApp.Migrations
                     b.HasKey("Id")
                         .HasName("PK_negotiation_entity");
 
-                    b.HasIndex("OwnerId");
-
                     b.HasIndex("ProductId");
 
                     b.ToTable("negotiation_entity", (string)null);
@@ -96,7 +91,7 @@ namespace PriceNegotiationApp.Migrations
                         .HasColumnType("character varying(1000)")
                         .HasColumnName("description");
 
-                    b.Property<DateTime?>("ModifiedAt")
+                    b.Property<DateTime>("ModifiedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("modified_at");
 
@@ -112,8 +107,6 @@ namespace PriceNegotiationApp.Migrations
 
                     b.HasKey("Id")
                         .HasName("PK_product_entity");
-
-                    b.HasIndex("OwnerId");
 
                     b.ToTable("product_entity", (string)null);
                 });
@@ -189,13 +182,6 @@ namespace PriceNegotiationApp.Migrations
 
             modelBuilder.Entity("PriceNegotiationApp.Database.Entities.NegotiationEntity", b =>
                 {
-                    b.HasOne("PriceNegotiationApp.Database.Entities.UserEntity", "User")
-                        .WithMany("Negotiations")
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_negotiation_entity_user");
-
                     b.HasOne("PriceNegotiationApp.Database.Entities.ProductEntity", "Product")
                         .WithMany("Negotiations")
                         .HasForeignKey("ProductId")
@@ -204,20 +190,6 @@ namespace PriceNegotiationApp.Migrations
                         .HasConstraintName("FK_negotiation_entity_product");
 
                     b.Navigation("Product");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("PriceNegotiationApp.Database.Entities.ProductEntity", b =>
-                {
-                    b.HasOne("PriceNegotiationApp.Database.Entities.UserEntity", "CreatedBy")
-                        .WithMany("CreatedProducts")
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_product_entity_user");
-
-                    b.Navigation("CreatedBy");
                 });
 
             modelBuilder.Entity("PriceNegotiationApp.Database.Entities.PropositionEntity", b =>
@@ -239,13 +211,6 @@ namespace PriceNegotiationApp.Migrations
 
             modelBuilder.Entity("PriceNegotiationApp.Database.Entities.ProductEntity", b =>
                 {
-                    b.Navigation("Negotiations");
-                });
-
-            modelBuilder.Entity("PriceNegotiationApp.Database.Entities.UserEntity", b =>
-                {
-                    b.Navigation("CreatedProducts");
-
                     b.Navigation("Negotiations");
                 });
 #pragma warning restore 612, 618

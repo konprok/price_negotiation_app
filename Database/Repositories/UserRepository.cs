@@ -9,9 +9,9 @@ namespace PriceNegotiationApp.Database.Repositories;
 
 public class UserRepository : IUserRepository
 {
-    private readonly UserDbContext _dbContext;
+    private readonly AppDbContext _dbContext;
 
-    public UserRepository(UserDbContext dbContext)
+    public UserRepository(AppDbContext dbContext)
     {
         _dbContext = dbContext;
     }

@@ -30,6 +30,8 @@ public class Startup
         services.AddRazorPages();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<IProductRepository, ProductRepository>();
         services.AddSingleton<IPasswordHasher, PasswordHascher>();
     }
 
@@ -42,7 +44,7 @@ public class Startup
 
     private void ConfigureDatabaseContext(IServiceCollection services)
     {
-        services.AddDbContext<UserDbContext>(options =>
+        services.AddDbContext<AppDbContext>(options =>
         {
             options.UseNpgsql(_configuration.GetConnectionString("UserDbContext"));
         });
@@ -56,7 +58,7 @@ public class Startup
         });
     }
 
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, UserDbContext dbContext)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AppDbContext dbContext)
     {
         if (!env.IsDevelopment())
         {
@@ -77,19 +79,17 @@ public class Startup
                 {
                     if (!context.Request.Cookies.TryGetValue("ClientId", out var anonIdStr))
                     {
-                        // Cookie nie istnieje -> generujemy nowe
                         var newId = Guid.NewGuid().ToString();
                         context.Response.Cookies.Append("ClientId", newId, new CookieOptions
                         {
                             HttpOnly = true,
                             SameSite = SameSiteMode.Strict,
-                            Expires = DateTimeOffset.UtcNow.AddDays(30) // np. 30 dni
+                            Expires = DateTimeOffset.UtcNow.AddDays(30)
                         });
                         context.Items["ClientId"] = newId;
                     }
                     else
                     {
-                        // Cookie istnieje -> zapisujemy w HttpContext.Items
                         context.Items["ClientId"] = anonIdStr;
                     }
 
