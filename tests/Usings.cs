@@ -8,5 +8,6 @@ global using PriceNegotiationApp.Database.Entities;
 global using PriceNegotiationApp.Services;
 global using PriceNegotiationApp.Database.Repositories.Interfaces;
 global using PriceNegotiationApp.Database.DbContext;
+global using PriceNegotiationApp.Models.Dtos;
 global using PriceNegotiationApp.Models.Exceptions;
 global using PriceNegotiationApp.Services.Interfaces;

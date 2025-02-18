@@ -21,14 +21,14 @@ public class UserEntityConfiguration : IEntityTypeConfiguration<UserEntity>
                .HasMaxLength(255)
                .HasColumnName("user_name");
 
-        builder.Property(x => x.PasswordHash)
-               .IsRequired()
-               .HasMaxLength(512)
-               .HasColumnName("password_hash");
-
         builder.Property(x => x.Email)
                .IsRequired()
                .HasMaxLength(255)
                .HasColumnName("email");
+        
+        builder.Property(x => x.PasswordHash)
+               .IsRequired()
+               .HasMaxLength(512)
+               .HasColumnName("password_hash");
     }
 }
