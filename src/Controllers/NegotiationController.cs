@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PriceNegotiationApp.Database.Entities;
-using PriceNegotiationApp.Database.Repositories.Interfaces;
 using PriceNegotiationApp.Models.Exceptions;
 using PriceNegotiationApp.Services.Interfaces;
 
@@ -18,7 +17,7 @@ public class NegotiationController : Controller
     }
 
     [HttpPost("proposition")]
-    public async Task<ActionResult<PropositionEntity>> PostProposition(Guid clientId, long productId, decimal price)
+    public async Task<ActionResult<PropositionEntity>> PostProposition([FromBody]Guid clientId, [FromBody] long productId, [FromBody] decimal price)
     {
         try
         {
@@ -43,7 +42,7 @@ public class NegotiationController : Controller
     }
 
     [HttpPatch("proposition")]
-    public async Task<ActionResult<PropositionEntity>> PatchProposition(Guid userId, long negotiationId, bool response)
+    public async Task<ActionResult<PropositionEntity>> PatchProposition([FromBody] Guid userId, [FromBody] long negotiationId, [FromBody] bool response)
     {
         try
         {
@@ -59,7 +58,7 @@ public class NegotiationController : Controller
         }
     }
     
-    [HttpGet]
+    [HttpGet("user/{userId}")]
     public async Task<ActionResult<IEnumerable<NegotiationEntity?>>> GetNegotiations(Guid userId)
     {
         try
