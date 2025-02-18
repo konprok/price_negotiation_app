@@ -1,8 +1,8 @@
 ﻿namespace PriceNegotiationApp.Models.Exceptions;
 
-public class ErrorMessages
+public static class ErrorMessages
 {
-    public const string UserNotFound = "Unable to find user";
+    public const string UserNotFound = "Unable to find user.";
     public const string UserAlreadyExist = "User with this name or email already exists.";
     public const string InvalidUser = "Invalid user.";
 

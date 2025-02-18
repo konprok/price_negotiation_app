@@ -38,8 +38,7 @@ public class UserService : IUserService
         await _userRepository.InsertUserAsync(newUser);
         await _userRepository.SaveAsync();
 
-        UserResponse userResponse = new UserResponse(newUser);
-        return userResponse;
+        return new UserResponse(newUser);
     }
     public async Task<UserResponse> GetUser(string userEmail, string password)
     {
@@ -66,9 +65,7 @@ public class UserService : IUserService
             throw new NotFoundException(ErrorMessages.UserNotFound);
         }
 
-        var user = new UserResponse(userEntity);
-
-        return user;
+        return new UserResponse(userEntity);
     }
     
 }

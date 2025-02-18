@@ -1,5 +1,54 @@
 # API Documentation
 
+## Technologies Used
+
+- **ASP.NET Core** - Web framework for building APIs.
+- **Entity Framework Core** - ORM for database interactions.
+- **FluentValidation** - Library for model validation.
+- **NUnit & NSubstitute** - Testing framework and mocking library.
+- **PostgreSQL** - Database used in the project.
+- **Swagger (Swashbuckle)** - API documentation generator.
+
+---
+
+## Setup & Run
+
+### Prerequisites
+
+- [.NET 9 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
+- [PostgreSQL](https://www.postgresql.org/download/)
+
+### Installation & Running
+
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/konprok/price_negotiation_app.git
+   cd price_negotiation_app
+   ```
+
+2. Configure database connection in `appsettings.json`:
+   ```json
+   "ConnectionStrings": {
+      "DefaultConnection": "Host=localhost;Port=5432;Database=your_db;Username=your_user;Password=your_password"
+   }
+   ```
+
+3. Apply migrations:
+   ```sh
+   dotnet ef database update
+   ```
+
+4. Run the API:
+   ```sh
+   dotnet run
+   ```
+
+5. Open Swagger UI (for API testing):
+    - [http://localhost:5231/swagger](http://localhost:5231/swagger) (default URL)
+
+---
+
+
 ## UserController
 
 ### POST `/users/register`

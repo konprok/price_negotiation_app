@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PriceNegotiationApp.Database.Entities;
+using PriceNegotiationApp.Models.Dtos;
 using PriceNegotiationApp.Models.Exceptions;
 using PriceNegotiationApp.Services.Interfaces;
 
@@ -17,11 +18,11 @@ public class NegotiationController : Controller
     }
 
     [HttpPost("proposition")]
-    public async Task<ActionResult<PropositionEntity>> PostProposition([FromBody]Guid clientId, [FromBody] long productId, [FromBody] decimal price)
+    public async Task<ActionResult<PropositionEntity>> PostProposition([FromBody] PostPropositionDto postPropositionDto)
     {
         try
         {
-            return Ok(await _negotiationService.PostProposition(clientId, productId, price));
+            return Ok(await _negotiationService.PostProposition(postPropositionDto.ClientId, postPropositionDto.ProductId, postPropositionDto.Price));
         }
         catch (NotFoundException ex)
         {
@@ -42,11 +43,11 @@ public class NegotiationController : Controller
     }
 
     [HttpPatch("proposition")]
-    public async Task<ActionResult<PropositionEntity>> PatchProposition([FromBody] Guid userId, [FromBody] long negotiationId, [FromBody] bool response)
+    public async Task<ActionResult<PropositionEntity>> PatchProposition([FromBody] PatchPropositionDto patchPropositionDto)
     {
         try
         {
-            return Ok(await _negotiationService.PatchProposition(userId, negotiationId, response));
+            return Ok(await _negotiationService.PatchProposition(patchPropositionDto.UserId, patchPropositionDto.NegotiationId, patchPropositionDto.Response));
         }
         catch (NotFoundException ex)
         {

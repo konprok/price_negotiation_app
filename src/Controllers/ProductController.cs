@@ -17,8 +17,8 @@ public class ProductController : ControllerBase
         _productService = productService;
     }
     
-    [HttpPost]
-    public async Task<ActionResult<ProductEntity>> PostProduct([FromBody] Guid userId, [FromBody] Product product)
+    [HttpPost("{userId}")]
+    public async Task<ActionResult<ProductEntity>> PostProduct(Guid userId, [FromBody] Product product)
     {
         try
         {
@@ -55,7 +55,7 @@ public class ProductController : ControllerBase
         }
     }
     
-    [HttpGet("user/{userId}")]
+    [HttpGet("/{userId}")]
     public async Task<ActionResult<ProductEntity>> GetProducts(Guid userId)
     {
         try
