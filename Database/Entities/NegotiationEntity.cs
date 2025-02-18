@@ -9,8 +9,8 @@ public class NegotiationEntity
     public Guid ClientId { get; set; }
     public bool Finished { get; set; }
     public decimal? FinalPrice { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime? ModyfiedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? ModyfiedAt { get; set; }
     public ProductEntity Product { get; set; } = null!;
     public IList<PropositionEntity> Proposition { get; set; } = new List<PropositionEntity>();
 }

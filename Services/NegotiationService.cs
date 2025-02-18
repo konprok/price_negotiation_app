@@ -19,30 +19,6 @@ public class NegotiationService : INegotiationService
         _propositionRepository = propositionRepository;
     }
 
-    public async Task<NegotiationEntity> PostNegotiation(Guid clientId, long productId)
-    {
-        var negotiation = await _negotiationRepository.GetNegotiation(clientId, productId);
-        if (negotiation != null)
-        {
-            throw new NegotiationAlreadyExistException();
-        }
-
-        var productEntity = await _productRepository.GetProduct(productId);
-        var negotiationEntity = new NegotiationEntity
-        {
-            ProductId = productId,
-            OwnerId = productEntity.OwnerId,
-            ClientId = clientId,
-            Finished = false,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        await _negotiationRepository.InsertProductAsync(negotiationEntity);
-        await _negotiationRepository.SaveAsync();
-
-        return negotiationEntity;
-    }
-
     public async Task<NegotiationEntity> GetNegotiation(Guid clientId, long productId)
     {
         var negotiationEntity = await _negotiationRepository.GetNegotiation(clientId, productId);
@@ -54,7 +30,76 @@ public class NegotiationService : INegotiationService
         return negotiationEntity;
     }
 
-    public async Task<PropositionEntity> PostProposition(long negotiationId, decimal price)
+    public async Task<PropositionEntity> PostProposition(Guid clientId, long productId, decimal price)
+    {
+        var negotiationEntity = await _negotiationRepository.GetNegotiation(clientId, productId);
+        if (negotiationEntity == null)
+        {
+            var productEntity = await _productRepository.GetProduct(productId);
+            var newNegotiationEntity = new NegotiationEntity
+            {
+                ProductId = productId,
+                OwnerId = productEntity.OwnerId,
+                ClientId = clientId,
+                Finished = false,
+                CreatedAt = DateTimeOffset.UtcNow
+            };
+
+            await _negotiationRepository.InsertNegotiationAsync(newNegotiationEntity);
+            await _negotiationRepository.SaveAsync();
+
+            var propositionEntity = new PropositionEntity
+            {
+                NegotiationId = newNegotiationEntity.Id,
+                ProposedPrice = price,
+                ProposedAt = DateTimeOffset.UtcNow
+            };
+
+            await _propositionRepository.InsertPropositionAsync(propositionEntity);
+            await _propositionRepository.SaveAsync();
+
+            return propositionEntity;
+        }
+        else
+        {
+            if (negotiationEntity.Finished)
+            {
+                throw new NegotiationHasEndedException();
+            }
+
+            if (negotiationEntity.Proposition.Count >= 3)
+            {
+                throw new PropositionsLimitReachedException();
+            }
+
+            var lastPropositionEntity = negotiationEntity.Proposition.MaxBy(x => x.ProposedAt);
+
+            if (lastPropositionEntity.Decision == null)
+            {
+                throw new PropositionUnderConsiderationException();
+            }
+
+            var daysSinceLast = (DateTimeOffset.UtcNow - lastPropositionEntity.ProposedAt).TotalDays;
+            if (daysSinceLast > 7)
+            {
+                throw new TimeForNewPropositionHasPassedException();
+            }
+
+            var propositionEntity = new PropositionEntity
+            {
+                NegotiationId = negotiationEntity.Id,
+                ProposedPrice = price,
+                ProposedAt = DateTimeOffset.UtcNow
+            };
+
+            await _propositionRepository.InsertPropositionAsync(propositionEntity);
+            await _propositionRepository.SaveAsync();
+
+            return propositionEntity;
+        }
+    }
+
+    public async Task<NegotiationEntity> PatchProposition(Guid userId, long negotiationId, bool response)
     {
         var negotiationEntity = await _negotiationRepository.GetNegotiation(negotiationId);
         if (negotiationEntity == null)
@@ -62,37 +107,34 @@ public class NegotiationService : INegotiationService
             throw new NegotiationNotFoundException();
         }
 
-        if (negotiationEntity.Finished)
+        if (negotiationEntity.OwnerId != userId)
         {
-            throw new NegotiationHasEndedException();
-        }
-
-        if (negotiationEntity.Proposition.Count >= 3)
-        {
-            throw new PropositionsLimitReachedException();
+            throw new NegotiationNotFoundException();
         }
 
         var lastPropositionEntity = negotiationEntity.Proposition.MaxBy(x => x.ProposedAt);
+        lastPropositionEntity.Decision = response;
+        lastPropositionEntity.DecidedAt = DateTimeOffset.UtcNow;
 
-        if (lastPropositionEntity != null)
+        if (response)
         {
-            var daysSinceLast = (DateTimeOffset.UtcNow - lastPropositionEntity.ProposedAt).TotalDays;
-            if (daysSinceLast > 7)
-            {
-                throw new TimeForNewPropositionHasPassedException();
-            }
+            negotiationEntity.Finished = true;
+            negotiationEntity.FinalPrice = lastPropositionEntity.ProposedPrice;
         }
 
-        var propositionEntity = new PropositionEntity
+        if (negotiationEntity.Proposition.Count == 3)
         {
-            NegotiationId = negotiationId,
-            ProposedPrice = price,
-            ProposedAt = DateTime.UtcNow
-        };
+            negotiationEntity.Finished = true;
+            negotiationEntity.FinalPrice = 0;
+        }
 
-        await _propositionRepository.InsertPropositionAsync(propositionEntity);
-        await _propositionRepository.SaveAsync();
+        await _negotiationRepository.SaveAsync();
 
-        return propositionEntity;
+        return negotiationEntity;
+    }
+
+    public async Task<IEnumerable<NegotiationEntity?>> GetNegotiations(Guid userId)
+    {
+        return await _negotiationRepository.GetNegotiations(userId);
     }
 }

@@ -17,6 +17,7 @@ public class NegotiationRepository : INegotiationRepository
     public async Task<NegotiationEntity?> GetNegotiation(Guid clientId, long productId)
     {
         return await _dbContext.Negotiations
+            .Include(x => x.Proposition)
             .Where(x => x.ClientId == clientId && x.ProductId == productId)
             .SingleOrDefaultAsync();
     }
@@ -28,7 +29,7 @@ public class NegotiationRepository : INegotiationRepository
             .SingleOrDefaultAsync(x=> x.Id == negotiationId);
     }
     
-    public async Task InsertProductAsync(NegotiationEntity negotiationEntity)
+    public async Task InsertNegotiationAsync(NegotiationEntity negotiationEntity)
     {
         await _dbContext.Negotiations.AddAsync(negotiationEntity);
     }
@@ -37,5 +38,12 @@ public class NegotiationRepository : INegotiationRepository
     {
         await _dbContext.SaveChangesAsync();
     }
-    
+
+    public async Task<IEnumerable<NegotiationEntity>> GetNegotiations(Guid userId)
+    {
+        return await _dbContext.Negotiations
+            .Include(x => x.Proposition)
+            .Where(x => x.OwnerId == userId)
+            .ToListAsync();
+    }
 }

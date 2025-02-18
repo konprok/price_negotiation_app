@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PriceNegotiationApp.Database.Entities;
 using PriceNegotiationApp.Database.Repositories.Interfaces;
+using PriceNegotiationApp.Models.Exceptions;
 using PriceNegotiationApp.Services.Interfaces;
 
 namespace PriceNegotiationApp.Controllers;
@@ -13,36 +14,70 @@ public class NegotiationController : Controller
     private readonly IProductService _productService;
     private readonly INegotiationService _negotiationService;
 
-    public NegotiationController(IUserService userService, IProductService productService, INegotiationService negotiationService)
+    public NegotiationController(IUserService userService, IProductService productService,
+        INegotiationService negotiationService)
     {
         _userService = userService;
         _productService = productService;
         _negotiationService = negotiationService;
     }
 
-    [HttpPost]
-    public async Task<ActionResult<NegotiationEntity>> PostNegotiation(Guid clientId, long productId)
+    [HttpPost("proposition")]
+    public async Task<ActionResult<PropositionEntity>> PostProposition(Guid clientId, long productId, decimal price)
     {
         try
         {
-            return Ok(await _negotiationService.PostNegotiation(clientId, productId));
+            return Ok(await _negotiationService.PostProposition(clientId, productId, price));
         }
-        catch(Exception ex)
+        catch (NegotiationHasEndedException ex)
         {
             return BadRequest(ex.Message);
+        }
+        catch (PropositionsLimitReachedException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (PropositionUnderConsiderationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (TimeForNewPropositionHasPassedException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+
+    [HttpPatch("proposition")]
+    public async Task<ActionResult<PropositionEntity>> PatchProposition(Guid userId, long negotiationId, bool response)
+    {
+        try
+        {
+            return Ok(await _negotiationService.PatchProposition(userId, negotiationId, response));
+        }
+        catch (NegotiationNotFoundException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
         }
     }
     
-    [HttpPost("proposition")]
-    public async Task<ActionResult<PropositionEntity>> PostProposition(long negotiationId, decimal price)
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<NegotiationEntity?>>> GetNegotiations(Guid userId)
     {
         try
         {
-            return Ok(await _negotiationService.PostProposition(negotiationId, price));
+            return Ok(await _negotiationService.GetNegotiations(userId));
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            return BadRequest(ex.Message);
+            return StatusCode(500, ex.Message);
         }
     }
 }

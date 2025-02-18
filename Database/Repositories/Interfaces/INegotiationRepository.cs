@@ -6,6 +6,7 @@ public interface INegotiationRepository
 {
     Task<NegotiationEntity?> GetNegotiation(Guid clientId, long productId);
     Task<NegotiationEntity?> GetNegotiation(long negotiationId);
-    Task InsertProductAsync(NegotiationEntity negotiationEntity);
+    Task<IEnumerable<NegotiationEntity?>> GetNegotiations(Guid userId);
+    Task InsertNegotiationAsync(NegotiationEntity negotiationEntity);
     Task SaveAsync();
 }

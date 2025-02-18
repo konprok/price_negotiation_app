@@ -4,7 +4,8 @@ namespace PriceNegotiationApp.Services.Interfaces;
 
 public interface INegotiationService
 {
-    Task<NegotiationEntity> PostNegotiation(Guid clientId, long productId);
     Task<NegotiationEntity> GetNegotiation(Guid clientId, long productId);
-    Task<PropositionEntity> PostProposition(long negotiationId, decimal price);
+    Task<IEnumerable<NegotiationEntity?>> GetNegotiations(Guid userId);
+    Task<PropositionEntity> PostProposition(Guid clientId, long productId, decimal price);
+    Task<NegotiationEntity> PatchProposition(Guid userId, long negotiationId, bool response);
 }
