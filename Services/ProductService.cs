@@ -36,7 +36,13 @@ public sealed class ProductService : IProductService
     
     public async Task<ProductEntity> GetProduct(long productId)
     {
-        return await _productRepository.GetProduct(productId);
+        var productEntity = await _productRepository.GetProduct(productId);
+        if (productEntity == null)
+        {
+            throw new ProductNotFoundException();
+        }
+
+        return productEntity;
     }
 
     public async Task<IEnumerable<ProductEntity>> GetProducts()

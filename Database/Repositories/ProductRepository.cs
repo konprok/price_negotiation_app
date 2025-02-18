@@ -2,7 +2,6 @@
 using PriceNegotiationApp.Database.DbContext;
 using PriceNegotiationApp.Database.Entities;
 using PriceNegotiationApp.Database.Repositories.Interfaces;
-using PriceNegotiationApp.Models.Exceptions;
 
 namespace PriceNegotiationApp.Database.Repositories;
 
@@ -15,13 +14,9 @@ public sealed class ProductRepository : IProductRepository
         _dbContext = dbContext;
     }
 
-    public async Task<ProductEntity> GetProduct(long productId)
+    public async Task<ProductEntity?> GetProduct(long productId)
     {
         var product = await _dbContext.Products.Where(x => x.Id == productId).FirstOrDefaultAsync();
-        if (product == null)
-        {
-            throw new ProductNotFoundException();
-        }
 
         return product;
     }

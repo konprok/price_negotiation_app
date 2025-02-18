@@ -47,7 +47,12 @@ public class UserService : IUserService
     }
     public async Task<UserResponse> GetUser(string userEmail, string password)
     {
+        if (userEmail == null) throw new InvalidUserException();
         var user = await _userRepository.GetUser(userEmail);
+        if (user == null)
+        {
+            throw new UserNotFoundException();
+        }
         if (!_passwordHasher.Verify(password, user.PasswordHash))
         {
             throw new InvalidPasswordException();
@@ -59,6 +64,16 @@ public class UserService : IUserService
 
     public async Task<UserResponse> GetUser(Guid userId)
     {
-        return await _userRepository.GetUser(userId);
+        
+        var userEntity = await _userRepository.GetUser(userId);
+        if (userEntity == null)
+        {
+            throw new UserNotFoundException();
+        }
+
+        var user = new UserResponse(userEntity);
+
+        return user;
     }
+    
 }

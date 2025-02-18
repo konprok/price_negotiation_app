@@ -19,29 +19,20 @@ public class UserRepository : IUserRepository
     {
         return await _dbContext.Users.ToListAsync();
     }
-    public async Task<UserEntity> GetUserEntity(Guid userId)
+    public async Task<UserEntity?> GetUserEntity(Guid userId)
     {
         UserEntity? userEntity = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
-        if (userEntity == null)
-        {
-            throw new UserNotFoundException();
-        }
 
         return userEntity;
     }
 
-    public async Task<UserResponse> GetUser(Guid userId)
+    public async Task<UserEntity?> GetUser(Guid userId)
     {
         UserEntity? userEntity = await _dbContext.Users
             .Where(x => x.Id == userId)
             .SingleOrDefaultAsync();
-        if (userEntity == null)
-        {
-            throw new UserNotFoundException();
-        }
-
-        var user = new UserResponse(userEntity);
-        return user;
+        
+        return userEntity;
     }
 
     public async Task<bool> CheckUserById(Guid userId)
@@ -58,17 +49,11 @@ public class UserRepository : IUserRepository
         return true;
     }
     
-    public async Task<UserEntity> GetUser(string userEmail)
+    public async Task<UserEntity?> GetUser(string userEmail)
     {
-        if (userEmail == null) throw new InvalidUserException();
         UserEntity? user = await _dbContext.Users
             .Where(x => x.Email.ToLower() == userEmail.ToLower())
             .SingleOrDefaultAsync();
-
-        if (user == null)
-        {
-            throw new UserNotFoundException();
-        }
 
         return user;
     }
