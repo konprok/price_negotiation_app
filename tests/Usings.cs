@@ -1,0 +1,12 @@
+﻿global using NUnit.Framework;
+global using NSubstitute;
+global using FluentValidation;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.AspNetCore.Mvc;
+global using PriceNegotiationApp.Controllers;
+global using PriceNegotiationApp.Database.Entities;
+global using PriceNegotiationApp.Services;
+global using PriceNegotiationApp.Database.Repositories.Interfaces;
+global using PriceNegotiationApp.Database.DbContext;
+global using PriceNegotiationApp.Models.Exceptions;
+global using PriceNegotiationApp.Services.Interfaces;
