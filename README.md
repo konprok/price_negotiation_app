@@ -45,15 +45,15 @@
 ### POST `/products`
 **Description:** Add a new product.
 
-#### Parameters:
-- `userId` (Guid) - The ID of the user adding the product.
-
 #### Body (JSON):
 ```json
 {
-  "name": "string",
-  "description": "string",
-  "price": 0.0
+  "userId": "Guid",
+  "product": {
+    "name": "string",
+    "description": "string",
+    "price": 0.0
+  }
 }
 ```
 
@@ -78,7 +78,7 @@
 
 ---
 
-### GET `/products/{userId}`
+### GET `/products/user/{userId}`
 **Description:** Retrieve products belonging to a specific user.
 
 #### Parameters:
@@ -105,10 +105,14 @@
 ### POST `/negotiations/proposition`
 **Description:** Submit a new negotiation proposal.
 
-#### Parameters:
-- `clientId` (Guid) - The client submitting the proposal.
-- `productId` (long) - The product ID.
-- `price` (decimal) - The proposed price.
+#### Body (JSON):
+```json
+{
+  "clientId": "Guid",
+  "productId": "long",
+  "price": 0.0
+}
+```
 
 #### Responses:
 - ✅ `200 OK` - The proposal was successfully submitted.
@@ -122,10 +126,14 @@
 ### PATCH `/negotiations/proposition`
 **Description:** Update the status of a negotiation proposal.
 
-#### Parameters:
-- `userId` (Guid) - The user ID.
-- `negotiationId` (long) - The negotiation ID.
-- `response` (bool) - User response (accept/reject).
+#### Body (JSON):
+```json
+{
+  "userId": "Guid",
+  "negotiationId": "long",
+  "response": true
+}
+```
 
 #### Responses:
 - ✅ `200 OK` - The proposal was updated.
@@ -134,7 +142,7 @@
 
 ---
 
-### GET `/negotiations`
+### GET `/negotiations/user/{userId}`
 **Description:** Retrieve a user's negotiations.
 
 #### Parameters:
