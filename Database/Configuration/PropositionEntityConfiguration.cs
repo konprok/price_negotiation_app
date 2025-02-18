@@ -26,8 +26,8 @@ public class PropositionEntityConfiguration : IEntityTypeConfiguration<Propositi
         builder.Property(p => p.ProposedAt)
                .HasColumnName("proposed_at");
 
-        builder.Property(p => p.Decision)
-               .HasColumnName("decision");
+        builder.Property(p => p.IsAccepted)
+               .HasColumnName("is_accepted");
 
         builder.Property(p => p.DecidedAt)
                .HasColumnName("decided_at");

@@ -24,25 +24,17 @@ public class NegotiationController : Controller
         {
             return Ok(await _negotiationService.PostProposition(clientId, productId, price));
         }
-        catch (InvalidInputException ex)
+        catch (NotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (InvalidArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
-        catch (NegotiationHasEndedException ex)
+        catch (ConflictException ex)
         {
-            return BadRequest(ex.Message);
-        }
-        catch (PropositionsLimitReachedException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (PropositionUnderConsiderationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (TimeForNewPropositionHasPassedException ex)
-        {
-            return BadRequest(ex.Message);
+            return Conflict(ex.Message);
         }
         catch (Exception ex)
         {
@@ -57,9 +49,9 @@ public class NegotiationController : Controller
         {
             return Ok(await _negotiationService.PatchProposition(userId, negotiationId, response));
         }
-        catch (NegotiationNotFoundException ex)
+        catch (NotFoundException ex)
         {
-            return BadRequest(ex.Message);
+            return NotFound(ex.Message);
         }
         catch (Exception ex)
         {

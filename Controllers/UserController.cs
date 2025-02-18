@@ -23,15 +23,7 @@ public class UserController : ControllerBase
         {
             return Ok(await _userService.PostUser(user));
         }
-        catch (InvalidInputException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (InvalidUserException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (UserAlreadyExistException ex)
+        catch (InvalidArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
@@ -48,17 +40,13 @@ public class UserController : ControllerBase
         {
             return Ok(await _userService.GetUser(user.Email, user.Password));
         }
-        catch (InvalidUserException ex)
+        catch (InvalidArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
-        catch (UserNotFoundException ex)
+        catch (NotFoundException ex)
         {
-            return BadRequest(ex.Message);
-        }
-        catch (InvalidPasswordException ex)
-        {
-            return BadRequest(ex.Message);
+            return NotFound(ex.Message);
         }
         catch (Exception ex)
         {

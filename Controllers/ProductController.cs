@@ -24,7 +24,11 @@ public class ProductController : ControllerBase
         {
             return Ok(await _productService.PostProduct(userId, product));
         }
-        catch (InvalidInputException ex)
+        catch (NotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (InvalidArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
@@ -41,9 +45,9 @@ public class ProductController : ControllerBase
         {
             return Ok(await _productService.GetProduct(productId));
         }
-        catch (ProductNotFoundException ex)
+        catch (NotFoundException ex)
         {
-            return BadRequest(ex.Message);
+            return NotFound(ex.Message);
         }
         catch (Exception ex)
         {
@@ -58,9 +62,9 @@ public class ProductController : ControllerBase
         {
             return Ok(await _productService.GetProductsByOwnerId(userId));
         }
-        catch (UserNotFoundException ex)
+        catch (NotFoundException ex)
         {
-            return BadRequest(ex.Message);
+            return NotFound(ex.Message);
         }
         catch (Exception ex)
         {
@@ -74,10 +78,6 @@ public class ProductController : ControllerBase
         try
         {
             return Ok(await _productService.GetProducts());
-        }
-        catch (UserNotFoundException ex)
-        {
-            return BadRequest(ex.Message);
         }
         catch (Exception ex)
         {

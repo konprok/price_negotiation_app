@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+using FluentValidation;
 using PriceNegotiationApp.Services.Interfaces;
 using PriceNegotiationApp.Models.Dtos;
 using PriceNegotiationApp.Database.Entities;
@@ -12,25 +12,21 @@ public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
-    public UserService(IUserRepository userRepository, IPasswordHasher passwordHasher)
+    private readonly IValidator<UserRegisterDto> _userRegisterValidator;
+    public UserService(IUserRepository userRepository, IPasswordHasher passwordHasher, IValidator<UserRegisterDto> userRegisterValidator)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
+        _userRegisterValidator = userRegisterValidator;
     }
 
     public async Task<UserResponse> PostUser(UserRegisterDto user)
     {
-        if (string.IsNullOrEmpty(user.UserName) ||
-            string.IsNullOrEmpty(user.Password) ||
-            string.IsNullOrEmpty(user.Email))
+        var validationResult = await _userRegisterValidator.ValidateAsync(user);
+        if (!validationResult.IsValid)
         {
-            throw new InvalidInputException("All fields are required.");
-        }
-
-        var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-        if (!emailRegex.IsMatch(user.Email))
-        {
-            throw new InvalidInputException("Invalid email format.");
+            var errors = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
+            throw new InvalidArgumentException(errors);
         }
         
         UserEntity newUser = new()
@@ -47,19 +43,18 @@ public class UserService : IUserService
     }
     public async Task<UserResponse> GetUser(string userEmail, string password)
     {
-        if (userEmail == null) throw new InvalidUserException();
+        if (userEmail == null) throw new InvalidArgumentException(ErrorMessages.InvalidUser);
         var user = await _userRepository.GetUser(userEmail);
         if (user == null)
         {
-            throw new UserNotFoundException();
+            throw new NotFoundException(ErrorMessages.UserNotFound);
         }
         if (!_passwordHasher.Verify(password, user.PasswordHash))
         {
-            throw new InvalidPasswordException();
+            throw new InvalidArgumentException(ErrorMessages.InvalidPassword);
         }
-
-        UserResponse userResponse = new UserResponse(user);
-        return userResponse;
+        
+        return new UserResponse(user);
     }
 
     public async Task<UserResponse> GetUser(Guid userId)
@@ -68,7 +63,7 @@ public class UserService : IUserService
         var userEntity = await _userRepository.GetUser(userId);
         if (userEntity == null)
         {
-            throw new UserNotFoundException();
+            throw new NotFoundException(ErrorMessages.UserNotFound);
         }
 
         var user = new UserResponse(userEntity);

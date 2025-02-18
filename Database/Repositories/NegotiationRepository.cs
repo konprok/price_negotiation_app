@@ -39,7 +39,7 @@ public class NegotiationRepository : INegotiationRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<NegotiationEntity>> GetNegotiationsByOwnerId(Guid userId)
+    public async Task<IEnumerable<NegotiationEntity?>> GetNegotiationsByOwnerId(Guid userId)
     {
         return await _dbContext.Negotiations
             .Include(x => x.Proposition)
@@ -47,7 +47,7 @@ public class NegotiationRepository : INegotiationRepository
             .ToListAsync();
     }
     
-    public async Task<IEnumerable<NegotiationEntity>> GetNegotiationsByClientId(Guid userId)
+    public async Task<IEnumerable<NegotiationEntity?>> GetNegotiationsByClientId(Guid userId)
     {
         return await _dbContext.Negotiations
             .Include(x => x.Proposition)

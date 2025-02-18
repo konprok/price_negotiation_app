@@ -12,7 +12,7 @@ using PriceNegotiationApp.Database.DbContext;
 namespace PriceNegotiationApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250217225604_InitMigration")]
+    [Migration("20250218214654_InitMigration")]
     partial class InitMigration
     {
         /// <inheritdoc />
@@ -38,7 +38,7 @@ namespace PriceNegotiationApp.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("client_id");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
@@ -51,7 +51,7 @@ namespace PriceNegotiationApp.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("finished");
 
-                    b.Property<DateTime?>("ModyfiedAt")
+                    b.Property<DateTimeOffset?>("ModyfiedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("modified_at");
 
@@ -127,9 +127,9 @@ namespace PriceNegotiationApp.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("decided_at");
 
-                    b.Property<bool?>("Decision")
+                    b.Property<bool?>("IsAccepted")
                         .HasColumnType("boolean")
-                        .HasColumnName("decision");
+                        .HasColumnName("is_accepted");
 
                     b.Property<long>("NegotiationId")
                         .HasColumnType("bigint")

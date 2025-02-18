@@ -55,8 +55,8 @@ namespace PriceNegotiationApp.Migrations
                     client_id = table.Column<Guid>(type: "uuid", nullable: false),
                     finished = table.Column<bool>(type: "boolean", nullable: false),
                     final_price = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: true),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    modified_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    modified_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -78,7 +78,7 @@ namespace PriceNegotiationApp.Migrations
                     negotiation_id = table.Column<long>(type: "bigint", nullable: false),
                     proposed_price = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
                     proposed_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    decision = table.Column<bool>(type: "boolean", nullable: true),
+                    is_accepted = table.Column<bool>(type: "boolean", nullable: true),
                     decided_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>

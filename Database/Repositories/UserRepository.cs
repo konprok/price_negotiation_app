@@ -1,5 +1,4 @@
 using PriceNegotiationApp.Database.Repositories.Interfaces;
-using PriceNegotiationApp.Models.Dtos;
 using PriceNegotiationApp.Database.Entities;
 using Microsoft.EntityFrameworkCore;
 using PriceNegotiationApp.Models.Exceptions;
@@ -19,12 +18,6 @@ public class UserRepository : IUserRepository
     {
         return await _dbContext.Users.ToListAsync();
     }
-    public async Task<UserEntity?> GetUserEntity(Guid userId)
-    {
-        UserEntity? userEntity = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
-
-        return userEntity;
-    }
 
     public async Task<UserEntity?> GetUser(Guid userId)
     {
@@ -33,20 +26,6 @@ public class UserRepository : IUserRepository
             .SingleOrDefaultAsync();
         
         return userEntity;
-    }
-
-    public async Task<bool> CheckUserById(Guid userId)
-    {
-        UserEntity? userEntity = await _dbContext.Users
-            .Where(x => x.Id == userId)
-            .SingleOrDefaultAsync();
-        
-        if (userEntity == null)
-        {
-            return false;
-        }
-
-        return true;
     }
     
     public async Task<UserEntity?> GetUser(string userEmail)
@@ -61,7 +40,7 @@ public class UserRepository : IUserRepository
     {
         if (await _dbContext.Users.AnyAsync(x => x.UserName == user.UserName || x.Email == user.Email))
         {
-            throw new UserAlreadyExistException();
+            throw new Exception(ErrorMessages.UserAlreadyExist);
         }
         await _dbContext.Users.AddAsync(user);
     }
@@ -77,7 +56,7 @@ public class UserRepository : IUserRepository
 
         if (user == null)
         {
-            throw new UserNotFoundException();
+            throw new Exception(ErrorMessages.UserNotFound);
         }
 
         _dbContext.Users.Remove(user);

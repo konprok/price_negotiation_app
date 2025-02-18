@@ -1,9 +1,12 @@
+using FluentValidation;
 using PriceNegotiationApp.Database.DbContext;
 using Microsoft.EntityFrameworkCore;
 using PriceNegotiationApp.Services;
 using PriceNegotiationApp.Services.Interfaces;
 using PriceNegotiationApp.Database.Repositories;
 using PriceNegotiationApp.Database.Repositories.Interfaces;
+using PriceNegotiationApp.Models.Dtos;
+using PriceNegotiationApp.Validators;
 
 namespace PriceNegotiationApp;
 
@@ -35,6 +38,8 @@ public class Startup
         services.AddScoped<INegotiationService, NegotiationService>();
         services.AddScoped<INegotiationRepository, NegotiationRepository>();
         services.AddScoped<IPropositionRepository, PropositionRepository>();
+        services.AddScoped<IValidator<UserRegisterDto>, UserRegisterModelValidator>();
+        services.AddScoped<IValidator<Product>, ProductModelValidator>();
         services.AddSingleton<IPasswordHasher, PasswordHascher>();
     }
 
