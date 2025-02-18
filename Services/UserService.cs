@@ -19,6 +19,12 @@ public class UserService : IUserService
 
     public async Task<UserResponse> PostUser(UserRegisterDto user)
     {
+        if (string.IsNullOrEmpty(user.UserName) || string.IsNullOrEmpty(user.Password) ||
+            string.IsNullOrEmpty(user.Email))
+        {
+            throw new InvalidInputException();
+        }
+        
         UserEntity newUser = new()
         {
             UserName = user.UserName,

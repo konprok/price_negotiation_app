@@ -23,6 +23,10 @@ public class UserController : ControllerBase
         {
             return Ok(await _userService.PostUser(user));
         }
+        catch (InvalidInputException ex)
+        {
+            return BadRequest(ex.Message);
+        }
         catch (InvalidUserException ex)
         {
             return BadRequest(ex.Message);

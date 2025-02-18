@@ -10,15 +10,10 @@ namespace PriceNegotiationApp.Controllers;
 [Route("negotiations")]
 public class NegotiationController : Controller
 {
-    private readonly IUserService _userService;
-    private readonly IProductService _productService;
     private readonly INegotiationService _negotiationService;
 
-    public NegotiationController(IUserService userService, IProductService productService,
-        INegotiationService negotiationService)
+    public NegotiationController(INegotiationService negotiationService)
     {
-        _userService = userService;
-        _productService = productService;
         _negotiationService = negotiationService;
     }
 
@@ -28,6 +23,10 @@ public class NegotiationController : Controller
         try
         {
             return Ok(await _negotiationService.PostProposition(clientId, productId, price));
+        }
+        catch (InvalidInputException ex)
+        {
+            return BadRequest(ex.Message);
         }
         catch (NegotiationHasEndedException ex)
         {

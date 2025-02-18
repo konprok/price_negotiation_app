@@ -1,6 +1,7 @@
 ﻿using PriceNegotiationApp.Database.Entities;
 using PriceNegotiationApp.Database.Repositories.Interfaces;
 using PriceNegotiationApp.Models.Dtos;
+using PriceNegotiationApp.Models.Exceptions;
 using PriceNegotiationApp.Services.Interfaces;
 
 namespace PriceNegotiationApp.Services;
@@ -17,6 +18,10 @@ public sealed class ProductService : IProductService
     }
     public async Task<ProductEntity> PostProduct(Guid userId, Product product)
     {
+        if (string.IsNullOrEmpty(product.Name) || string.IsNullOrEmpty(product.Description) || product.BasePrice == 0)
+        {
+            throw new InvalidInputException();
+        }
 
         ProductEntity productEntity = new ProductEntity(product)
         {

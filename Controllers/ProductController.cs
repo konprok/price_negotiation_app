@@ -24,9 +24,13 @@ public class ProductController : ControllerBase
         {
             return Ok(await _productService.PostProduct(userId, product));
         }
-        catch (Exception)
+        catch (InvalidInputException ex)
         {
-            return BadRequest();
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
         }
     }
 
@@ -40,6 +44,10 @@ public class ProductController : ControllerBase
         catch (ProductNotFoundException ex)
         {
             return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
         }
     }
     

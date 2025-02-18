@@ -10,13 +10,15 @@ public class NegotiationService : INegotiationService
     private readonly INegotiationRepository _negotiationRepository;
     private readonly IProductRepository _productRepository;
     private readonly IPropositionRepository _propositionRepository;
+    private readonly IUserRepository _userRepository;
 
     public NegotiationService(INegotiationRepository negotiationRepository, IProductRepository productRepository,
-        IPropositionRepository propositionRepository)
+        IPropositionRepository propositionRepository, IUserRepository userRepository)
     {
         _negotiationRepository = negotiationRepository;
         _productRepository = productRepository;
         _propositionRepository = propositionRepository;
+        _userRepository = userRepository;
     }
 
     public async Task<NegotiationEntity> GetNegotiation(Guid clientId, long productId)
@@ -32,6 +34,11 @@ public class NegotiationService : INegotiationService
 
     public async Task<PropositionEntity> PostProposition(Guid clientId, long productId, decimal price)
     {
+        if (price <= 0)
+        {
+            throw new InvalidInputException();
+        }
+
         var negotiationEntity = await _negotiationRepository.GetNegotiation(clientId, productId);
         if (negotiationEntity == null)
         {
@@ -135,6 +142,10 @@ public class NegotiationService : INegotiationService
 
     public async Task<IEnumerable<NegotiationEntity?>> GetNegotiations(Guid userId)
     {
-        return await _negotiationRepository.GetNegotiations(userId);
+        if (await _userRepository.CheckUserById(userId))
+        {
+            return await _negotiationRepository.GetNegotiationsByClientId(userId);
+        }
+        return await _negotiationRepository.GetNegotiationsByOwnerId(userId);
     }
 }

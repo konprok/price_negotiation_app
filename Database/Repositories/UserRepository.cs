@@ -43,6 +43,21 @@ public class UserRepository : IUserRepository
         var user = new UserResponse(userEntity);
         return user;
     }
+
+    public async Task<bool> CheckUserById(Guid userId)
+    {
+        UserEntity? userEntity = await _dbContext.Users
+            .Where(x => x.Id == userId)
+            .SingleOrDefaultAsync();
+        
+        if (userEntity == null)
+        {
+            return false;
+        }
+
+        return true;
+    }
+    
     public async Task<UserEntity> GetUser(string userEmail)
     {
         if (userEmail == null) throw new InvalidUserException();
