@@ -99,6 +99,8 @@ public class NegotiationService : INegotiationService
                 ProposedAt = DateTimeOffset.UtcNow
             };
 
+            negotiationEntity.ModyfiedAt = DateTimeOffset.UtcNow;
+
             await _propositionRepository.InsertPropositionAsync(propositionEntity);
             await _propositionRepository.SaveAsync();
 
@@ -122,6 +124,7 @@ public class NegotiationService : INegotiationService
         var lastPropositionEntity = negotiationEntity.Proposition.MaxBy(x => x.ProposedAt);
         lastPropositionEntity.Decision = response;
         lastPropositionEntity.DecidedAt = DateTimeOffset.UtcNow;
+        negotiationEntity.ModyfiedAt = DateTimeOffset.UtcNow;
 
         if (response)
         {
@@ -144,8 +147,9 @@ public class NegotiationService : INegotiationService
     {
         if (await _userRepository.CheckUserById(userId))
         {
-            return await _negotiationRepository.GetNegotiationsByClientId(userId);
+            return await _negotiationRepository.GetNegotiationsByOwnerId(userId);
         }
-        return await _negotiationRepository.GetNegotiationsByOwnerId(userId);
+
+        return await _negotiationRepository.GetNegotiationsByClientId(userId);
     }
 }

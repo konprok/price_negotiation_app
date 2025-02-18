@@ -13,7 +13,6 @@ public class ProductEntity
     public Guid OwnerId { get; set; }
     public ICollection<NegotiationEntity>? Negotiations { get; set; }
 
-
     public ProductEntity()
     {
     }

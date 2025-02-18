@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using PriceNegotiationApp.Services.Interfaces;
 using PriceNegotiationApp.Models.Dtos;
 using PriceNegotiationApp.Database.Entities;
@@ -19,10 +20,17 @@ public class UserService : IUserService
 
     public async Task<UserResponse> PostUser(UserRegisterDto user)
     {
-        if (string.IsNullOrEmpty(user.UserName) || string.IsNullOrEmpty(user.Password) ||
+        if (string.IsNullOrEmpty(user.UserName) ||
+            string.IsNullOrEmpty(user.Password) ||
             string.IsNullOrEmpty(user.Email))
         {
-            throw new InvalidInputException();
+            throw new InvalidInputException("All fields are required.");
+        }
+
+        var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+        if (!emailRegex.IsMatch(user.Email))
+        {
+            throw new InvalidInputException("Invalid email format.");
         }
         
         UserEntity newUser = new()
