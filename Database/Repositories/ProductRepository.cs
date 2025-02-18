@@ -26,6 +26,13 @@ public sealed class ProductRepository : IProductRepository
         return product;
     }
 
+    public async Task<IEnumerable<ProductEntity>> GetProducts()
+    {
+        return await _dbContext.Products
+            .OrderByDescending(x => x.CreatedAt)
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<ProductEntity>> GetProducts(Guid ownerId)
     {
         var products = await _dbContext.Products

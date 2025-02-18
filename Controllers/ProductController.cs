@@ -43,12 +43,29 @@ public class ProductController : ControllerBase
         }
     }
     
-    [HttpGet("/{userId}")]
-    public async Task<ActionResult<ProductEntity>> GetProduct(Guid userId)
+    [HttpGet("{userId}")]
+    public async Task<ActionResult<ProductEntity>> GetProducts(Guid userId)
     {
         try
         {
             return Ok(await _productService.GetProductsByOwnerId(userId));
+        }
+        catch (UserNotFoundException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+    
+    [HttpGet("all")]
+    public async Task<ActionResult<ProductEntity>> GetProducts()
+    {
+        try
+        {
+            return Ok(await _productService.GetProducts());
         }
         catch (UserNotFoundException ex)
         {

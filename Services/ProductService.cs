@@ -33,10 +33,15 @@ public sealed class ProductService : IProductService
     {
         return await _productRepository.GetProduct(productId);
     }
-    
+
+    public async Task<IEnumerable<ProductEntity>> GetProducts()
+    {
+        return await _productRepository.GetProducts();
+    }
     public async Task<IEnumerable<ProductEntity>> GetProductsByOwnerId(Guid userId)
     {
         await _userRepository.GetUser(userId);
         return await _productRepository.GetProducts(userId);
     }
+    
 }

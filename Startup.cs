@@ -32,6 +32,9 @@ public class Startup
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<INegotiationService, NegotiationService>();
+        services.AddScoped<INegotiationRepository, NegotiationRepository>();
+        services.AddScoped<IPropositionRepository, PropositionRepository>();
         services.AddSingleton<IPasswordHasher, PasswordHascher>();
     }
 
@@ -46,7 +49,7 @@ public class Startup
     {
         services.AddDbContext<AppDbContext>(options =>
         {
-            options.UseNpgsql(_configuration.GetConnectionString("UserDbContext"));
+            options.UseNpgsql(_configuration.GetConnectionString("AppDbContext"));
         });
     }
 

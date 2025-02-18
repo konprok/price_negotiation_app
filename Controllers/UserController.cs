@@ -3,6 +3,8 @@ using PriceNegotiationApp.Services.Interfaces;
 using PriceNegotiationApp.Models.Exceptions;
 using PriceNegotiationApp.Models.Dtos;
 
+namespace PriceNegotiationApp.Controllers;
+
 [ApiController]
 [Route("users")]
 public class UserController : ControllerBase
