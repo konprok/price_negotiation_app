@@ -1,5 +1,4 @@
 using PriceNegotiationApp.Database.Entities;
-using PriceNegotiationApp.Models.Dtos;
 
 namespace PriceNegotiationApp.Database.Repositories.Interfaces;
 

@@ -1,5 +1,4 @@
 using PriceNegotiationApp.Database.Repositories.Interfaces;
-using PriceNegotiationApp.Models.Dtos;
 using PriceNegotiationApp.Database.Entities;
 using Microsoft.EntityFrameworkCore;
 using PriceNegotiationApp.Models.Exceptions;
@@ -61,7 +60,7 @@ public class UserRepository : IUserRepository
     {
         if (await _dbContext.Users.AnyAsync(x => x.UserName == user.UserName || x.Email == user.Email))
         {
-            throw new UserAlreadyExistException();
+            throw new Exception(ErrorMessages.UserAlreadyExist);
         }
         await _dbContext.Users.AddAsync(user);
     }
@@ -77,7 +76,7 @@ public class UserRepository : IUserRepository
 
         if (user == null)
         {
-            throw new UserNotFoundException();
+            throw new Exception(ErrorMessages.UserNotFound);
         }
 
         _dbContext.Users.Remove(user);

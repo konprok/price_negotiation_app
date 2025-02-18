@@ -1,4 +1,6 @@
+using System;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http.HttpResults;
 using PriceNegotiationApp.Services.Interfaces;
 using PriceNegotiationApp.Models.Dtos;
 using PriceNegotiationApp.Database.Entities;
@@ -24,13 +26,13 @@ public class UserService : IUserService
             string.IsNullOrEmpty(user.Password) ||
             string.IsNullOrEmpty(user.Email))
         {
-            throw new InvalidInputException("All fields are required.");
+            throw new InvalidArgumentException(ErrorMessages.InvalidInput);
         }
 
         var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
         if (!emailRegex.IsMatch(user.Email))
         {
-            throw new InvalidInputException("Invalid email format.");
+            throw new InvalidArgumentException(ErrorMessages.InvalidEmail);
         }
         
         UserEntity newUser = new()
@@ -47,15 +49,15 @@ public class UserService : IUserService
     }
     public async Task<UserResponse> GetUser(string userEmail, string password)
     {
-        if (userEmail == null) throw new InvalidUserException();
+        if (userEmail == null) throw new InvalidArgumentException(ErrorMessages.InvalidUser);
         var user = await _userRepository.GetUser(userEmail);
         if (user == null)
         {
-            throw new UserNotFoundException();
+            throw new NotFoundException(ErrorMessages.UserNotFound);
         }
         if (!_passwordHasher.Verify(password, user.PasswordHash))
         {
-            throw new InvalidPasswordException();
+            throw new InvalidArgumentException(ErrorMessages.InvalidPassword);
         }
 
         UserResponse userResponse = new UserResponse(user);
@@ -68,7 +70,7 @@ public class UserService : IUserService
         var userEntity = await _userRepository.GetUser(userId);
         if (userEntity == null)
         {
-            throw new UserNotFoundException();
+            throw new NotFoundException(ErrorMessages.UserNotFound);
         }
 
         var user = new UserResponse(userEntity);

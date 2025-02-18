@@ -26,7 +26,7 @@ public class NegotiationService : INegotiationService
         var negotiationEntity = await _negotiationRepository.GetNegotiation(clientId, productId);
         if (negotiationEntity == null)
         {
-            throw new NegotiationDoesNotExistException();
+            throw new NotFoundException(ErrorMessages.NegotiationDoesNotExist);
         }
 
         return negotiationEntity;
@@ -36,7 +36,7 @@ public class NegotiationService : INegotiationService
     {
         if (price <= 0)
         {
-            throw new InvalidInputException();
+            throw new InvalidArgumentException(ErrorMessages.InvalidInput);
         }
 
         var negotiationEntity = await _negotiationRepository.GetNegotiation(clientId, productId);
@@ -71,25 +71,25 @@ public class NegotiationService : INegotiationService
         {
             if (negotiationEntity.Finished)
             {
-                throw new NegotiationHasEndedException();
+                throw new ConflictException(ErrorMessages.NegotiationHasEnded);
             }
 
             if (negotiationEntity.Proposition.Count >= 3)
             {
-                throw new PropositionsLimitReachedException();
+                throw new ConflictException(ErrorMessages.PropositionsLimitReached);
             }
 
             var lastPropositionEntity = negotiationEntity.Proposition.MaxBy(x => x.ProposedAt);
 
             if (lastPropositionEntity.Decision == null)
             {
-                throw new PropositionUnderConsiderationException();
+                throw new ConflictException(ErrorMessages.PropositionUnderConsideration);
             }
 
             var daysSinceLast = (DateTimeOffset.UtcNow - lastPropositionEntity.ProposedAt).TotalDays;
             if (daysSinceLast > 7)
             {
-                throw new TimeForNewPropositionHasPassedException();
+                throw new ConflictException(ErrorMessages.TimeForNewPropositionHasPassed);
             }
 
             var propositionEntity = new PropositionEntity
@@ -113,12 +113,12 @@ public class NegotiationService : INegotiationService
         var negotiationEntity = await _negotiationRepository.GetNegotiation(negotiationId);
         if (negotiationEntity == null)
         {
-            throw new NegotiationNotFoundException();
+            throw new NotFoundException(ErrorMessages.NegotiationNotFound);
         }
 
         if (negotiationEntity.OwnerId != userId)
         {
-            throw new NegotiationNotFoundException();
+            throw new NotFoundException(ErrorMessages.NegotiationNotFound);
         }
 
         var lastPropositionEntity = negotiationEntity.Proposition.MaxBy(x => x.ProposedAt);

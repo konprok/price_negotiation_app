@@ -20,7 +20,7 @@ public sealed class ProductService : IProductService
     {
         if (string.IsNullOrEmpty(product.Name) || string.IsNullOrEmpty(product.Description) || product.BasePrice == 0)
         {
-            throw new InvalidInputException();
+            throw new InvalidArgumentException(ErrorMessages.InvalidInput);
         }
 
         ProductEntity productEntity = new ProductEntity(product)
@@ -39,7 +39,7 @@ public sealed class ProductService : IProductService
         var productEntity = await _productRepository.GetProduct(productId);
         if (productEntity == null)
         {
-            throw new ProductNotFoundException();
+            throw new NotFoundException(ErrorMessages.ProductNotFoundException);
         }
 
         return productEntity;
@@ -51,7 +51,11 @@ public sealed class ProductService : IProductService
     }
     public async Task<IEnumerable<ProductEntity>> GetProductsByOwnerId(Guid userId)
     {
-        await _userRepository.GetUser(userId);
+        var user = await _userRepository.GetUser(userId);
+        if (user == null)
+        {
+            throw new NotFoundException(ErrorMessages.UserNotFound);
+        }
         return await _productRepository.GetProducts(userId);
     }
     
