@@ -1,6 +1,4 @@
-using System;
-using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Http.HttpResults;
+using FluentValidation;
 using PriceNegotiationApp.Services.Interfaces;
 using PriceNegotiationApp.Models.Dtos;
 using PriceNegotiationApp.Database.Entities;
@@ -14,25 +12,21 @@ public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
-    public UserService(IUserRepository userRepository, IPasswordHasher passwordHasher)
+    private readonly IValidator<UserRegisterDto> _userRegisterValidator;
+    public UserService(IUserRepository userRepository, IPasswordHasher passwordHasher, IValidator<UserRegisterDto> userRegisterValidator)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
+        _userRegisterValidator = userRegisterValidator;
     }
 
     public async Task<UserResponse> PostUser(UserRegisterDto user)
     {
-        if (string.IsNullOrEmpty(user.UserName) ||
-            string.IsNullOrEmpty(user.Password) ||
-            string.IsNullOrEmpty(user.Email))
+        var validationResult = await _userRegisterValidator.ValidateAsync(user);
+        if (!validationResult.IsValid)
         {
-            throw new InvalidArgumentException(ErrorMessages.InvalidInput);
-        }
-
-        var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-        if (!emailRegex.IsMatch(user.Email))
-        {
-            throw new InvalidArgumentException(ErrorMessages.InvalidEmail);
+            var errors = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
+            throw new InvalidArgumentException(errors);
         }
         
         UserEntity newUser = new()
@@ -59,9 +53,8 @@ public class UserService : IUserService
         {
             throw new InvalidArgumentException(ErrorMessages.InvalidPassword);
         }
-
-        UserResponse userResponse = new UserResponse(user);
-        return userResponse;
+        
+        return new UserResponse(user);
     }
 
     public async Task<UserResponse> GetUser(Guid userId)

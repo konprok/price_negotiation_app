@@ -24,6 +24,10 @@ public class NegotiationController : Controller
         {
             return Ok(await _negotiationService.PostProposition(clientId, productId, price));
         }
+        catch (InvalidArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
         catch (ConflictException ex)
         {
             return Conflict(ex.Message);

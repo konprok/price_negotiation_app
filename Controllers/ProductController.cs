@@ -24,6 +24,10 @@ public class ProductController : ControllerBase
         {
             return Ok(await _productService.PostProduct(userId, product));
         }
+        catch (NotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
         catch (InvalidArgumentException ex)
         {
             return BadRequest(ex.Message);

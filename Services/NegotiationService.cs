@@ -111,12 +111,7 @@ public class NegotiationService : INegotiationService
     public async Task<NegotiationEntity> PatchProposition(Guid userId, long negotiationId, bool response)
     {
         var negotiationEntity = await _negotiationRepository.GetNegotiation(negotiationId);
-        if (negotiationEntity == null)
-        {
-            throw new NotFoundException(ErrorMessages.NegotiationNotFound);
-        }
-
-        if (negotiationEntity.OwnerId != userId)
+        if (negotiationEntity == null || negotiationEntity.OwnerId != userId)
         {
             throw new NotFoundException(ErrorMessages.NegotiationNotFound);
         }
@@ -145,7 +140,8 @@ public class NegotiationService : INegotiationService
 
     public async Task<IEnumerable<NegotiationEntity?>> GetNegotiations(Guid userId)
     {
-        if (await _userRepository.CheckUserById(userId))
+        var userEntity = await _userRepository.GetUser(userId);
+        if (userEntity != null)
         {
             return await _negotiationRepository.GetNegotiationsByOwnerId(userId);
         }
