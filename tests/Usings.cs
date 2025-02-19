@@ -1,6 +1,8 @@
 ﻿global using NUnit.Framework;
+global using NUnit.Framework.Legacy;
 global using NSubstitute;
 global using FluentValidation;
+global using FluentValidation.Results;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.AspNetCore.Mvc;
 global using PriceNegotiationApp.Controllers;
