@@ -3,7 +3,7 @@ using PriceNegotiationApp.Models.Dtos;
 
 namespace PriceNegotiationApp.Validators;
 
-public class UserRegisterModelValidator : AbstractValidator<UserRegisterDto>
+public sealed class UserRegisterModelValidator : AbstractValidator<UserRegisterDto>
 {
     public UserRegisterModelValidator()
     {

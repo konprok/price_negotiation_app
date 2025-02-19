@@ -3,7 +3,7 @@ using PriceNegotiationApp.Models.Dtos;
 
 namespace PriceNegotiationApp.Validators;
 
-public class ProductModelValidator : AbstractValidator<Product>
+public sealed class ProductModelValidator : AbstractValidator<Product>
 {
     public ProductModelValidator()
     {

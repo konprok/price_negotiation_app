@@ -1,4 +1,4 @@
-# API Documentation
+# Price Negotiation App
 
 ## Technologies Used
 
@@ -48,6 +48,7 @@
 
 ---
 
+# API Documentation
 
 ## UserController
 

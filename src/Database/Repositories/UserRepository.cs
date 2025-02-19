@@ -6,7 +6,7 @@ using PriceNegotiationApp.Database.DbContext;
 
 namespace PriceNegotiationApp.Database.Repositories;
 
-public class UserRepository : IUserRepository
+public sealed class UserRepository : IUserRepository
 {
     private readonly AppDbContext _dbContext;
 

@@ -13,12 +13,14 @@ public sealed class ProductService : IProductService
     private readonly IUserRepository _userRepository;
     private readonly IValidator<Product> _productModelValidator;
 
-    public ProductService(IProductRepository productRepository, IUserRepository userRepository, IValidator<Product> productModelValidator)
+    public ProductService(IProductRepository productRepository, IUserRepository userRepository,
+        IValidator<Product> productModelValidator)
     {
         _productRepository = productRepository;
         _userRepository = userRepository;
         _productModelValidator = productModelValidator;
     }
+
     public async Task<ProductEntity> PostProduct(Guid userId, Product product)
     {
         var userEntity = await _userRepository.GetUser(userId);
@@ -26,7 +28,7 @@ public sealed class ProductService : IProductService
         {
             throw new NotFoundException(ErrorMessages.UserNotFound);
         }
-        
+
         var validationResult = await _productModelValidator.ValidateAsync(product);
         if (!validationResult.IsValid)
         {
@@ -38,13 +40,13 @@ public sealed class ProductService : IProductService
         {
             OwnerId = userId
         };
-        
+
         await _productRepository.InsertProductAsync(productEntity);
         await _productRepository.SaveAsync();
 
         return productEntity;
     }
-    
+
     public async Task<ProductEntity> GetProduct(long productId)
     {
         var productEntity = await _productRepository.GetProduct(productId);
@@ -60,6 +62,7 @@ public sealed class ProductService : IProductService
     {
         return await _productRepository.GetProducts();
     }
+
     public async Task<IEnumerable<ProductEntity>> GetProductsByOwnerId(Guid userId)
     {
         var user = await _userRepository.GetUser(userId);
@@ -67,7 +70,7 @@ public sealed class ProductService : IProductService
         {
             throw new NotFoundException(ErrorMessages.UserNotFound);
         }
+
         return await _productRepository.GetProducts(userId);
     }
-    
 }

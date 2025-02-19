@@ -2,7 +2,7 @@ using PriceNegotiationApp.Models.Dtos;
 
 namespace PriceNegotiationApp.Database.Entities;
 
-public class ProductEntity
+public sealed class ProductEntity
 {
     public long Id { get; set; }
     public string Name { get; set; } = null!;

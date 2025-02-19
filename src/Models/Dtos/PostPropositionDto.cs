@@ -1,6 +1,6 @@
 ﻿namespace PriceNegotiationApp.Models.Dtos;
 
-public class PostPropositionDto
+public sealed class PostPropositionDto
 {
     public Guid ClientId { get; set; }
     public long ProductId { get; set; }

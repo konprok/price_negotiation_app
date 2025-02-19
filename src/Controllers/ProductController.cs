@@ -8,16 +8,16 @@ namespace PriceNegotiationApp.Controllers;
 
 [ApiController]
 [Route("products")]
-public class ProductController : ControllerBase
+public sealed class ProductController : ControllerBase
 {
     private readonly IProductService _productService;
-    
+
     public ProductController(IProductService productService)
     {
         _productService = productService;
     }
-    
-    [HttpPost("{userId}")]
+
+    [HttpPost("user/{userId}")]
     public async Task<ActionResult<ProductEntity>> PostProduct(Guid userId, [FromBody] Product product)
     {
         try
@@ -54,8 +54,8 @@ public class ProductController : ControllerBase
             return StatusCode(500, ex.Message);
         }
     }
-    
-    [HttpGet("/{userId}")]
+
+    [HttpGet("user/{userId}")]
     public async Task<ActionResult<ProductEntity>> GetProducts(Guid userId)
     {
         try
@@ -71,7 +71,7 @@ public class ProductController : ControllerBase
             return StatusCode(500, ex.Message);
         }
     }
-    
+
     [HttpGet("all")]
     public async Task<ActionResult<ProductEntity>> GetProducts()
     {
@@ -84,5 +84,4 @@ public class ProductController : ControllerBase
             return StatusCode(500, ex.Message);
         }
     }
-    
 }

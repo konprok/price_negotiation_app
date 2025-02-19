@@ -1,6 +1,5 @@
 ﻿namespace PriceNegotiationApp.Models.Dtos;
-
-public class UserLoginDto
+public sealed class UserLoginDto
 {
     public UserLoginDto()
     {

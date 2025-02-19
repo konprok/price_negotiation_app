@@ -1,6 +1,6 @@
 ﻿namespace PriceNegotiationApp.Models.Dtos;
 
-public class PatchPropositionDto
+public sealed class PatchPropositionDto
 {
     public Guid UserId { get; set; }
     public long NegotiationId { get; set; }

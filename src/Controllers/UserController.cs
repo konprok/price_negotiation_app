@@ -7,7 +7,7 @@ namespace PriceNegotiationApp.Controllers;
 
 [ApiController]
 [Route("users")]
-public class UserController : ControllerBase
+public sealed class UserController : ControllerBase
 {
     private readonly IUserService _userService;
 

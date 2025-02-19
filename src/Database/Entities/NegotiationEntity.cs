@@ -1,7 +1,7 @@
 namespace PriceNegotiationApp.Database.Entities;
 
 
-public class NegotiationEntity
+public sealed class NegotiationEntity
 {
     public long Id { get; set; }
     public long ProductId { get; set; }

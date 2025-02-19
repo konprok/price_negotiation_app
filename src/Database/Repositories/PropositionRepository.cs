@@ -5,7 +5,7 @@ using PriceNegotiationApp.Database.Repositories.Interfaces;
 
 namespace PriceNegotiationApp.Database.Repositories;
 
-public class PropositionRepository : IPropositionRepository
+public sealed class PropositionRepository : IPropositionRepository
 {
     private readonly AppDbContext _dbContext;
 

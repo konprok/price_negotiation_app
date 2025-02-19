@@ -5,7 +5,7 @@ using PriceNegotiationApp.Services.Interfaces;
 
 namespace PriceNegotiationApp.Database.DbContext;
 
-public class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
+public sealed class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
 {
     private readonly IPasswordHasher _passwordHasher;
 

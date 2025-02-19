@@ -8,7 +8,7 @@ namespace PriceNegotiationApp.Controllers;
 
 [ApiController]
 [Route("negotiations")]
-public class NegotiationController : Controller
+public sealed class NegotiationController : Controller
 {
     private readonly INegotiationService _negotiationService;
 
@@ -22,7 +22,8 @@ public class NegotiationController : Controller
     {
         try
         {
-            return Ok(await _negotiationService.PostProposition(postPropositionDto.ClientId, postPropositionDto.ProductId, postPropositionDto.Price));
+            return Ok(await _negotiationService.PostProposition(postPropositionDto.ClientId,
+                postPropositionDto.ProductId, postPropositionDto.Price));
         }
         catch (NotFoundException ex)
         {
@@ -43,11 +44,13 @@ public class NegotiationController : Controller
     }
 
     [HttpPatch("proposition")]
-    public async Task<ActionResult<PropositionEntity>> PatchProposition([FromBody] PatchPropositionDto patchPropositionDto)
+    public async Task<ActionResult<PropositionEntity>> PatchProposition(
+        [FromBody] PatchPropositionDto patchPropositionDto)
     {
         try
         {
-            return Ok(await _negotiationService.PatchProposition(patchPropositionDto.UserId, patchPropositionDto.NegotiationId, patchPropositionDto.Response));
+            return Ok(await _negotiationService.PatchProposition(patchPropositionDto.UserId,
+                patchPropositionDto.NegotiationId, patchPropositionDto.Response));
         }
         catch (NotFoundException ex)
         {
@@ -58,7 +61,7 @@ public class NegotiationController : Controller
             return StatusCode(500, ex.Message);
         }
     }
-    
+
     [HttpGet("user/{userId}")]
     public async Task<ActionResult<IEnumerable<NegotiationEntity?>>> GetNegotiations(Guid userId)
     {

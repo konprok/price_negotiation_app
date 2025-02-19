@@ -1,8 +1,5 @@
-﻿using PriceNegotiationApp.Database.Entities;
-
-namespace PriceNegotiationApp.Models.Dtos;
-
-public class Product
+﻿namespace PriceNegotiationApp.Models.Dtos;
+public sealed class Product
 {
     public Product()
     {

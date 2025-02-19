@@ -8,7 +8,7 @@ using PriceNegotiationApp.Models.Exceptions;
 
 namespace PriceNegotiationApp.Services;
 
-public class UserService : IUserService
+public sealed class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;

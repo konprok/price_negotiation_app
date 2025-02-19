@@ -5,7 +5,7 @@ using PriceNegotiationApp.Services.Interfaces;
 
 namespace PriceNegotiationApp.Services;
 
-public class NegotiationService : INegotiationService
+public sealed class NegotiationService : INegotiationService
 {
     private readonly INegotiationRepository _negotiationRepository;
     private readonly IProductRepository _productRepository;

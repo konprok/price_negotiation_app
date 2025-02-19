@@ -12,7 +12,7 @@ using PriceNegotiationApp.Database.DbContext;
 namespace PriceNegotiationApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250218214654_InitMigration")]
+    [Migration("20250219001933_InitMigration")]
     partial class InitMigration
     {
         /// <inheritdoc />
