@@ -387,6 +387,8 @@ FodyWeavers.xsd
 .idea/
 *.sln.iml
 *.sln
+*.sln.DotSettings
+
 
 #editorconfig
 *.editorconfig
