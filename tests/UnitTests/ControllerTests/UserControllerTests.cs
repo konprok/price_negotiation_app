@@ -1,6 +1,6 @@
 ﻿namespace PriceNegotiationAppTests.UnitTests.ControllerTests;
 
-public class UserControllerTest
+public sealed class UserControllerTests
 {
     private IUserService _userService = null!;
     private UserController _userController = null!;

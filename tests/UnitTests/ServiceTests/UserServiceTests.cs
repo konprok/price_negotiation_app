@@ -1,6 +1,6 @@
 ﻿namespace PriceNegotiationAppTests.UnitTests.ServiceTests;
 
-public class UserServiceTest
+public sealed class UserServiceTests
 {
     private IUserRepository _userRepository = null!;
     private IPasswordHasher _passwordHasher = null!;

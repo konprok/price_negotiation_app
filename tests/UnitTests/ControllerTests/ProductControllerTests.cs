@@ -1,15 +1,28 @@
 ﻿namespace PriceNegotiationAppTests.UnitTests.ControllerTests;
 
-public class ProductControllerTest
+public sealed class ProductControllerTests
 {
     private IProductService _productService = null!;
     private ProductController _productController = null!;
+    private Guid _testUserId;
+    private Product _testProduct = null!;
+    private ProductEntity _testProductEntity = null!;
+    private List<ProductEntity> _testProductList = null!;
 
     [SetUp]
     public void SetUp()
     {
         _productService = Substitute.For<IProductService>();
         _productController = new ProductController(_productService);
+
+        _testUserId = Guid.NewGuid();
+        _testProduct = new Product { Name = "Laptop", Description = "Gaming Laptop", BasePrice = 2500.99m };
+        _testProductEntity = new ProductEntity(_testProduct) { Id = 1, OwnerId = _testUserId };
+        _testProductList = new List<ProductEntity>
+        {
+            new ProductEntity { Id = 1, Name = "Laptop", BasePrice = 2500.99m, OwnerId = _testUserId },
+            new ProductEntity { Id = 2, Name = "Phone", BasePrice = 999.99m, OwnerId = _testUserId }
+        };
     }
 
     #region PostProduct Tests
@@ -17,34 +30,27 @@ public class ProductControllerTest
     [Test]
     public async Task ShouldReturnOkAfterPostProduct()
     {
-        var userId = Guid.NewGuid();
-        var product = new Product { Name = "Laptop", Description = "Gaming Laptop", BasePrice = 2500.99m };
-        var productEntity = new ProductEntity(product) { Id = 1, OwnerId = userId };
+        _productService.PostProduct(_testUserId, _testProduct).Returns(_testProductEntity);
 
-        _productService.PostProduct(userId, product).Returns(productEntity);
-        
-        var result = await _productController.PostProduct(userId, product);
-        
+        var result = await _productController.PostProduct(_testUserId, _testProduct);
+
         ClassicAssert.IsNotNull(result);
         ClassicAssert.IsInstanceOf<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
         ClassicAssert.IsNotNull(okResult);
-        Assert.That(okResult.StatusCode, Is.EqualTo(200));
-        Assert.That(okResult.Value, Is.EqualTo(productEntity));
+        Assert.That(okResult?.StatusCode, Is.EqualTo(200));
+        Assert.That(okResult?.Value, Is.EqualTo(_testProductEntity));
     }
 
     [Test]
     public async Task ShouldReturnNotFoundAfterPostProductWhenUserDoesNotExist()
     {
-        var userId = Guid.NewGuid();
-        var product = new Product { Name = "Laptop", Description = "Gaming Laptop", BasePrice = 2500.99m };
-
-        _productService.PostProduct(userId, product)
+        _productService.PostProduct(_testUserId, _testProduct)
             .Returns(Task.FromException<ProductEntity>(new NotFoundException("User not found")));
-        
-        var result = await _productController.PostProduct(userId, product);
-        
+
+        var result = await _productController.PostProduct(_testUserId, _testProduct);
+
         ClassicAssert.IsNotNull(result);
         ClassicAssert.IsInstanceOf<NotFoundObjectResult>(result.Result);
     }
@@ -52,14 +58,11 @@ public class ProductControllerTest
     [Test]
     public async Task ShouldReturnBadRequestAfterPostProductWhenInvalidArgumentExceptionThrown()
     {
-        var userId = Guid.NewGuid();
-        var product = new Product();
-
-        _productService.PostProduct(userId, product)
+        _productService.PostProduct(_testUserId, _testProduct)
             .Returns(Task.FromException<ProductEntity>(new InvalidArgumentException("Invalid product")));
-        
-        var result = await _productController.PostProduct(userId, product);
-        
+
+        var result = await _productController.PostProduct(_testUserId, _testProduct);
+
         ClassicAssert.IsNotNull(result);
         ClassicAssert.IsInstanceOf<BadRequestObjectResult>(result.Result);
     }
@@ -67,13 +70,10 @@ public class ProductControllerTest
     [Test]
     public async Task ShouldReturnInternalServerErrorAfterPostProductWhenUnhandledExceptionThrown()
     {
-        var userId = Guid.NewGuid();
-        var product = new Product { Name = "Laptop", Description = "Gaming Laptop", BasePrice = 2500.99m };
-
-        _productService.PostProduct(userId, product)
+        _productService.PostProduct(_testUserId, _testProduct)
             .Returns(Task.FromException<ProductEntity>(new Exception("Unexpected error")));
 
-        var result = await _productController.PostProduct(userId, product);
+        var result = await _productController.PostProduct(_testUserId, _testProduct);
 
         ClassicAssert.IsNotNull(result);
         ClassicAssert.IsInstanceOf<ObjectResult>(result.Result);
@@ -86,14 +86,10 @@ public class ProductControllerTest
     [Test]
     public async Task ShouldReturnOkAfterGetProduct()
     {
-        long productId = 1;
-        var productEntity = new ProductEntity
-            { Id = productId, Name = "Laptop", Description = "Gaming Laptop", BasePrice = 2500.99m };
+        _productService.GetProduct(_testProductEntity.Id).Returns(_testProductEntity);
 
-        _productService.GetProduct(productId).Returns(productEntity);
-        
-        var result = await _productController.GetProduct(productId);
-        
+        var result = await _productController.GetProduct(_testProductEntity.Id);
+
         ClassicAssert.IsNotNull(result);
         ClassicAssert.IsInstanceOf<OkObjectResult>(result.Result);
     }
@@ -101,13 +97,11 @@ public class ProductControllerTest
     [Test]
     public async Task ShouldReturnNotFoundAfterGetProductWhenProductNotFound()
     {
-        long productId = 1;
-
-        _productService.GetProduct(productId)
+        _productService.GetProduct(_testProductEntity.Id)
             .Returns(Task.FromException<ProductEntity>(new NotFoundException("Product not found")));
-        
-        var result = await _productController.GetProduct(productId);
-        
+
+        var result = await _productController.GetProduct(_testProductEntity.Id);
+
         ClassicAssert.IsNotNull(result);
         ClassicAssert.IsInstanceOf<NotFoundObjectResult>(result.Result);
     }
@@ -115,13 +109,11 @@ public class ProductControllerTest
     [Test]
     public async Task ShouldReturnInternalServerErrorAfterGetProductWhenUnhandledExceptionThrown()
     {
-        long productId = 1;
-
-        _productService.GetProduct(productId)
+        _productService.GetProduct(_testProductEntity.Id)
             .Returns(Task.FromException<ProductEntity>(new Exception("Unexpected error")));
-        
-        var result = await _productController.GetProduct(productId);
-        
+
+        var result = await _productController.GetProduct(_testProductEntity.Id);
+
         ClassicAssert.IsNotNull(result);
         ClassicAssert.IsInstanceOf<ObjectResult>(result.Result);
     }
@@ -133,16 +125,9 @@ public class ProductControllerTest
     [Test]
     public async Task ShouldReturnOkAfterGetProductsByUserId()
     {
-        var userId = Guid.NewGuid();
-        var products = new List<ProductEntity>
-        {
-            new ProductEntity { Id = 1, Name = "Laptop", BasePrice = 2500.99m, OwnerId = userId },
-            new ProductEntity { Id = 2, Name = "Phone", BasePrice = 999.99m, OwnerId = userId }
-        };
+        _productService.GetProductsByOwnerId(_testUserId).Returns(_testProductList);
 
-        _productService.GetProductsByOwnerId(userId).Returns(products);
-
-        var result = await _productController.GetProducts(userId);
+        var result = await _productController.GetProducts(_testUserId);
 
         ClassicAssert.IsNotNull(result);
         ClassicAssert.IsInstanceOf<OkObjectResult>(result.Result);
@@ -151,12 +136,10 @@ public class ProductControllerTest
     [Test]
     public async Task ShouldReturnNotFoundAfterGetProductsByUserIdWhenUserNotFound()
     {
-        var userId = Guid.NewGuid();
-
-        _productService.GetProductsByOwnerId(userId)
+        _productService.GetProductsByOwnerId(_testUserId)
             .Returns(Task.FromException<IEnumerable<ProductEntity>>(new NotFoundException("User not found")));
 
-        var result = await _productController.GetProducts(userId);
+        var result = await _productController.GetProducts(_testUserId);
 
         ClassicAssert.IsNotNull(result);
         ClassicAssert.IsInstanceOf<NotFoundObjectResult>(result.Result);
@@ -169,13 +152,7 @@ public class ProductControllerTest
     [Test]
     public async Task ShouldReturnOkAfterGetProducts()
     {
-        var products = new List<ProductEntity>
-        {
-            new ProductEntity { Id = 1, Name = "Laptop", BasePrice = 2500.99m },
-            new ProductEntity { Id = 2, Name = "Phone", BasePrice = 999.99m }
-        };
-
-        _productService.GetProducts().Returns(products);
+        _productService.GetProducts().Returns(_testProductList);
 
         var result = await _productController.GetProducts();
 

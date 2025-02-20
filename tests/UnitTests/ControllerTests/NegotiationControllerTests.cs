@@ -1,6 +1,6 @@
 ﻿namespace PriceNegotiationAppTests.UnitTests.ControllerTests;
 
-public class NegotiationControllerTest
+public sealed class NegotiationControllerTests
 {
     private INegotiationService _negotiationService = null!;
     private NegotiationController _negotiationController = null!;

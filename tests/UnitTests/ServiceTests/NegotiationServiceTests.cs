@@ -1,6 +1,6 @@
 ﻿namespace PriceNegotiationAppTests.UnitTests.ServiceTests;
 
-public class NegotiationServiceTest
+public sealed class NegotiationServiceTests
 {
     private INegotiationRepository _negotiationRepository = null!;
     private IProductRepository _productRepository = null!;
