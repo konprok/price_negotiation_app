@@ -93,11 +93,7 @@ public sealed class UserControllerIntegrationTests : WebApplicationFactory<Progr
     [Test]
     public async Task ShouldLoginSuccessfully()
     {
-        var loginDto = new UserLoginDto
-        {
-            Email = "test@example.com",
-            Password = "password"
-        };
+        var loginDto = new UserLoginDto("password", "test@example.com");
 
         var content = new StringContent(JsonSerializer.Serialize(loginDto), Encoding.UTF8, "application/json");
         var result = await _httpClient.PostAsync("/users/login", content);

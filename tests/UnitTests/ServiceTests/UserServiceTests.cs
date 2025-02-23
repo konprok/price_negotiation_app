@@ -31,12 +31,7 @@ public sealed class UserServiceTests
     [Test]
     public async Task ShouldCreateUserWhenValidUserRegisterDtoProvided()
     {
-        var userRegisterDto = new UserRegisterDto
-        {
-            UserName = _testUser.UserName,
-            Email = _testUser.Email,
-            Password = "Pass123"
-        };
+        var userRegisterDto = new UserRegisterDto(_testUser.UserName, _testUser.Email, "Pass123");
 
         _userRegisterValidator.ValidateAsync(userRegisterDto).Returns(new ValidationResult());
         _passwordHasher.Hash(userRegisterDto.Password).Returns(_testUser.PasswordHash);
@@ -96,7 +91,7 @@ public sealed class UserServiceTests
     [Test]
     public void ShouldThrowInvalidArgumentExceptionWhenEmailIsNull()
     {
-        string email = null!;
+        string? email = null;
         string password = "Pass123";
 
         var ex = Assert.ThrowsAsync<InvalidArgumentException>(() => _userService.GetUser(email, password));

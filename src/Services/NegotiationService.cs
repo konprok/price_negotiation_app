@@ -31,7 +31,7 @@ public sealed class NegotiationService : INegotiationService
 
         return negotiationEntity;
     }
-    
+
     public async Task<PropositionEntity> PostProposition(Guid clientId, long productId, decimal price)
     {
         ValidatePrice(price);
@@ -47,7 +47,7 @@ public sealed class NegotiationService : INegotiationService
 
         return await AddPropositionToExistingNegotiation(negotiationEntity, price);
     }
-    
+
     public async Task<NegotiationEntity> PatchProposition(Guid userId, long negotiationId, bool response)
     {
         var negotiationEntity = await _negotiationRepository.GetNegotiation(negotiationId);
@@ -94,7 +94,8 @@ public sealed class NegotiationService : INegotiationService
         }
     }
 
-    private async Task<PropositionEntity> CreateNewNegotiationWithProposition(Guid clientId, long productId, decimal price)
+    private async Task<PropositionEntity> CreateNewNegotiationWithProposition(Guid clientId, long productId,
+        decimal price)
     {
         var productEntity = await _productRepository.GetProduct(productId);
         if (productEntity == null)
@@ -143,7 +144,8 @@ public sealed class NegotiationService : INegotiationService
         }
     }
 
-    private async Task<PropositionEntity> AddPropositionToExistingNegotiation(NegotiationEntity negotiation, decimal price)
+    private async Task<PropositionEntity> AddPropositionToExistingNegotiation(NegotiationEntity negotiation,
+        decimal price)
     {
         var newPropositionEntity = new PropositionEntity
         {

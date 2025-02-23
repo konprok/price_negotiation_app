@@ -104,6 +104,91 @@ public sealed class NegotiationServiceTests
         Assert.That(ex.Message, Is.EqualTo(ErrorMessages.ProductNotFoundException));
     }
 
+    [Test]
+    public void ShouldThrowConflictExceptionWhenPropositionIsUnderConsideration()
+    {
+        var clientId = Guid.NewGuid();
+        var productId = 1;
+        var price = 500.0m;
+        var negotiationEntity = new NegotiationEntity
+        {
+            Proposition = new List<PropositionEntity> { new() { IsAccepted = null } }
+        };
+
+        _negotiationRepository.GetNegotiation(clientId, productId).Returns(negotiationEntity);
+
+        var ex = Assert.ThrowsAsync<ConflictException>(() =>
+            _negotiationService.PostProposition(clientId, productId, price));
+
+        ClassicAssert.IsNotNull(ex);
+        Assert.That(ex.Message, Is.EqualTo(ErrorMessages.PropositionUnderConsideration));
+    }
+
+    [Test]
+    public void ShouldThrowConflictExceptionWhenNegotiationIsFinished()
+    {
+        var clientId = Guid.NewGuid();
+        var productId = 1;
+        var price = 500.0m;
+        var negotiationEntity = new NegotiationEntity { Finished = true };
+
+        _negotiationRepository.GetNegotiation(clientId, productId).Returns(negotiationEntity);
+
+        var ex = Assert.ThrowsAsync<ConflictException>(() =>
+            _negotiationService.PostProposition(clientId, productId, price));
+
+        ClassicAssert.IsNotNull(ex);
+        Assert.That(ex.Message, Is.EqualTo(ErrorMessages.NegotiationHasEnded));
+    }
+
+    [Test]
+    public void ShouldThrowConflictExceptionWhenPropositionsLimitReached()
+    {
+        var clientId = Guid.NewGuid();
+        var productId = 1;
+        var price = 500.0m;
+        var negotiationEntity = new NegotiationEntity
+        {
+            Proposition = new List<PropositionEntity> { new(), new(), new() }
+        };
+
+        _negotiationRepository.GetNegotiation(clientId, productId).Returns(negotiationEntity);
+
+        var ex = Assert.ThrowsAsync<ConflictException>(() =>
+            _negotiationService.PostProposition(clientId, productId, price));
+
+        ClassicAssert.IsNotNull(ex);
+        Assert.That(ex.Message, Is.EqualTo(ErrorMessages.PropositionsLimitReached));
+    }
+
+    [Test]
+    public void ShouldThrowConflictExceptionWhenTimeForNewPropositionHasPassed()
+    {
+        var clientId = Guid.NewGuid();
+        var productId = 1;
+        var price = 500.0m;
+        var negotiationEntity = new NegotiationEntity
+        {
+            Proposition = new List<PropositionEntity>
+            {
+                new()
+                {
+                    ProposedAt = DateTimeOffset.UtcNow.AddDays(-8),
+                    IsAccepted = false
+                }
+            },
+            Finished = false
+        };
+
+        _negotiationRepository.GetNegotiation(clientId, productId).Returns(negotiationEntity);
+
+        var ex = Assert.ThrowsAsync<ConflictException>(() =>
+            _negotiationService.PostProposition(clientId, productId, price));
+
+        ClassicAssert.IsNotNull(ex);
+        Assert.That(ex.Message, Is.EqualTo(ErrorMessages.TimeForNewPropositionHasPassed));
+    }
+
     #endregion
 
     #region PatchProposition Tests
