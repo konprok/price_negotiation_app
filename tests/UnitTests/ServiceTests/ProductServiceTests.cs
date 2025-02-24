@@ -6,6 +6,8 @@ public sealed class ProductServiceTests
     private IUserRepository _userRepository = null!;
     private IValidator<Product> _productModelValidator = null!;
     private ProductService _productService = null!;
+    private UserRegisterDto _userRegisterDto = null!;
+    private UserEntity _userEntity = null!;
 
     [SetUp]
     public void SetUp()
@@ -15,6 +17,9 @@ public sealed class ProductServiceTests
         _productModelValidator = Substitute.For<IValidator<Product>>();
 
         _productService = new ProductService(_productRepository, _userRepository, _productModelValidator);
+
+        _userRegisterDto = new UserRegisterDto("TestUser", "test@test.com", "password");
+        _userEntity = new(_userRegisterDto);
     }
 
     #region PostProduct Tests
@@ -24,14 +29,12 @@ public sealed class ProductServiceTests
     {
         var userId = Guid.NewGuid();
         var product = new Product { Name = "Laptop", Description = "Gaming Laptop", BasePrice = 2500.99m };
-        var userEntity = new UserEntity
-            { Id = userId, UserName = "TestUser", Email = "test@test.com", PasswordHash = "hashedpassword" };
 
-        _userRepository.GetUser(userId).Returns(userEntity);
+        _userRepository.GetUser(userId).Returns(_userEntity);
         _productModelValidator.ValidateAsync(product).Returns(new ValidationResult());
-        
+
         var result = await _productService.PostProduct(userId, product);
-        
+
         ClassicAssert.IsNotNull(result);
         Assert.That(result.OwnerId, Is.EqualTo(userId));
         Assert.That(result.Name, Is.EqualTo(product.Name));
@@ -59,10 +62,8 @@ public sealed class ProductServiceTests
     {
         var userId = Guid.NewGuid();
         var product = new Product();
-        var userEntity = new UserEntity
-            { Id = userId, UserName = "TestUser", Email = "test@test.com", PasswordHash = "hashedpassword" };
 
-        _userRepository.GetUser(userId).Returns(userEntity);
+        _userRepository.GetUser(userId).Returns(_userEntity);
         var validationFailures = new List<ValidationFailure>
         {
             new ValidationFailure("Name", "Product name is required")
@@ -141,14 +142,12 @@ public sealed class ProductServiceTests
             new ProductEntity { Id = 1, Name = "Laptop", BasePrice = 2500.99m, OwnerId = userId },
             new ProductEntity { Id = 2, Name = "Phone", BasePrice = 999.99m, OwnerId = userId }
         };
-        var userEntity = new UserEntity
-            { Id = userId, UserName = "TestUser", Email = "test@test.com", PasswordHash = "hashedpassword" };
 
-        _userRepository.GetUser(userId).Returns(userEntity);
+        _userRepository.GetUser(userId).Returns(_userEntity);
         _productRepository.GetProducts(userId).Returns(products);
-        
+
         var result = await _productService.GetProductsByOwnerId(userId);
-        
+
         ClassicAssert.IsNotNull(result);
         Assert.That(((List<ProductEntity>)result).Count, Is.EqualTo(2));
     }
@@ -159,7 +158,7 @@ public sealed class ProductServiceTests
         var userId = Guid.NewGuid();
 
         _userRepository.GetUser(userId).Returns((UserEntity)null!);
-        
+
         var ex = Assert.ThrowsAsync<NotFoundException>(() => _productService.GetProductsByOwnerId(userId));
 
         ClassicAssert.IsNotNull(ex);

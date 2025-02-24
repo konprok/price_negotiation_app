@@ -6,6 +6,7 @@ public sealed class ProductControllerIntegrationTests : WebApplicationFactory<Pr
     private HttpClient _httpClient = null!;
     private AppDbContext _dbContext = null!;
     private IPasswordHasher _passwordHasher = null!;
+    private UserRegisterDto _userRegisterDto = null!;
 
     [OneTimeSetUp]
     public void Setup()
@@ -33,12 +34,10 @@ public sealed class ProductControllerIntegrationTests : WebApplicationFactory<Pr
     [SetUp]
     public void SetUp()
     {
-        _dbContext.Users.Add(new UserEntity
+        _userRegisterDto = new UserRegisterDto("user@example.com", "user", "password");
+        _dbContext.Users.Add(new UserEntity(_userRegisterDto)
         {
-            Id = new Guid("00000000-0000-0000-0000-000000000001"),
-            UserName = "testUser",
-            Email = "test@example.com",
-            PasswordHash = _passwordHasher.Hash("password")
+            Id = new Guid("00000000-0000-0000-0000-000000000001")
         });
         _dbContext.Products.Add(new ProductEntity()
         {

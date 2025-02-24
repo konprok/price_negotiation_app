@@ -1,16 +1,13 @@
 ﻿namespace PriceNegotiationApp.Models.Dtos;
+
 public sealed class UserLoginDto
 {
-    public UserLoginDto()
-    {
-    }
-
-    public UserLoginDto(string password, string email)
+    public UserLoginDto(string email, string password)
     {
         Email = email;
         Password = password;
     }
 
-    public string Password { get; set; }
     public string Email { get; set; }
+    public string Password { get; set; }
 }

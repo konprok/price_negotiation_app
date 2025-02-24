@@ -38,7 +38,7 @@ public sealed class UserController : ControllerBase
     {
         try
         {
-            return Ok(await _userService.GetUser(user.Email, user.Password));
+            return Ok(await _userService.GetUser(user));
         }
         catch (InvalidArgumentException ex)
         {

@@ -6,6 +6,8 @@ public sealed class UserServiceTests
     private IPasswordHasher _passwordHasher = null!;
     private IValidator<UserRegisterDto> _userRegisterValidator = null!;
     private UserService _userService = null!;
+    private UserRegisterDto _userRegisterDto = null!;
+    private UserLoginDto _userLoginDto = null!;
     private UserEntity _testUser = null!;
 
     [SetUp]
@@ -16,14 +18,9 @@ public sealed class UserServiceTests
         _userRegisterValidator = Substitute.For<IValidator<UserRegisterDto>>();
 
         _userService = new UserService(_userRepository, _passwordHasher, _userRegisterValidator);
-
-        _testUser = new UserEntity
-        {
-            Id = Guid.NewGuid(),
-            UserName = "TestUser",
-            Email = "test@test.com",
-            PasswordHash = "hashedpassword"
-        };
+        _userRegisterDto = new UserRegisterDto("user@example.com", "user", "password");
+        _testUser = new UserEntity(_userRegisterDto);
+        _userLoginDto = new UserLoginDto(_testUser.Email, _testUser.PasswordHash);
     }
 
     #region PostUser Tests
@@ -31,12 +28,7 @@ public sealed class UserServiceTests
     [Test]
     public async Task ShouldCreateUserWhenValidUserRegisterDtoProvided()
     {
-        var userRegisterDto = new UserRegisterDto
-        {
-            UserName = _testUser.UserName,
-            Email = _testUser.Email,
-            Password = "Pass123"
-        };
+        var userRegisterDto = new UserRegisterDto(_testUser.Email, _testUser.UserName, "password");
 
         _userRegisterValidator.ValidateAsync(userRegisterDto).Returns(new ValidationResult());
         _passwordHasher.Hash(userRegisterDto.Password).Returns(_testUser.PasswordHash);
@@ -58,7 +50,7 @@ public sealed class UserServiceTests
     [Test]
     public void ShouldThrowInvalidArgumentExceptionWhenValidationFails()
     {
-        var userRegisterDto = new UserRegisterDto();
+        var userRegisterDto = new UserRegisterDto("user@exampl.com", "user", "password");
         var validationFailures = new List<ValidationFailure>
         {
             new ValidationFailure("Email", "Invalid email"),
@@ -84,9 +76,8 @@ public sealed class UserServiceTests
     public async Task ShouldReturnUserWhenValidCredentialsProvided()
     {
         _userRepository.GetUser(_testUser.Email).Returns(_testUser);
-        _passwordHasher.Verify("Pass123", _testUser.PasswordHash).Returns(true);
-
-        var result = await _userService.GetUser(_testUser.Email, "Pass123");
+        _passwordHasher.Verify("password", _testUser.PasswordHash).Returns(true);
+        var result = await _userService.GetUser(_userLoginDto);
 
         ClassicAssert.IsNotNull(result);
         Assert.That(result.Email, Is.EqualTo(_testUser.Email));
@@ -96,13 +87,12 @@ public sealed class UserServiceTests
     [Test]
     public void ShouldThrowInvalidArgumentExceptionWhenEmailIsNull()
     {
-        string email = null!;
-        string password = "Pass123";
+        UserLoginDto userLoginDto = new UserLoginDto(null, "password");
 
-        var ex = Assert.ThrowsAsync<InvalidArgumentException>(() => _userService.GetUser(email, password));
+        var ex = Assert.ThrowsAsync<InvalidArgumentException>(() => _userService.GetUser(userLoginDto));
 
         ClassicAssert.IsNotNull(ex);
-        Assert.That(ex.Message, Is.EqualTo(ErrorMessages.InvalidUser));
+        Assert.That(ex.Message, Is.EqualTo(ErrorMessages.InvalidInput));
     }
 
     [Test]
@@ -110,7 +100,7 @@ public sealed class UserServiceTests
     {
         _userRepository.GetUser(_testUser.Email).Returns((UserEntity)null!);
 
-        var ex = Assert.ThrowsAsync<NotFoundException>(() => _userService.GetUser(_testUser.Email, "Pass123"));
+        var ex = Assert.ThrowsAsync<NotFoundException>(() => _userService.GetUser(_userLoginDto));
 
         ClassicAssert.IsNotNull(ex);
         Assert.That(ex.Message, Is.EqualTo(ErrorMessages.UserNotFound));
@@ -121,8 +111,9 @@ public sealed class UserServiceTests
     {
         _userRepository.GetUser(_testUser.Email).Returns(_testUser);
         _passwordHasher.Verify("WrongPass", _testUser.PasswordHash).Returns(false);
+        UserLoginDto userLoginDto = new UserLoginDto(_testUser.Email, "wrongPassword");
 
-        var ex = Assert.ThrowsAsync<InvalidArgumentException>(() => _userService.GetUser(_testUser.Email, "WrongPass"));
+        var ex = Assert.ThrowsAsync<InvalidArgumentException>(() => _userService.GetUser(userLoginDto));
 
         ClassicAssert.IsNotNull(ex);
         Assert.That(ex.Message, Is.EqualTo(ErrorMessages.InvalidPassword));
