@@ -5,6 +5,7 @@ public sealed class UserControllerIntegrationTests : WebApplicationFactory<Progr
     private WebApplicationFactory<Program> _factory = null!;
     private HttpClient _httpClient = null!;
     private AppDbContext _dbContext = null!;
+    private UserRegisterDto _userRegisterDto = null!;
     private IPasswordHasher _passwordHasher = null!;
 
     [OneTimeSetUp]
@@ -26,19 +27,17 @@ public sealed class UserControllerIntegrationTests : WebApplicationFactory<Progr
                 });
             });
         _dbContext = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<AppDbContext>();
-        _passwordHasher = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<IPasswordHasher>();
         _httpClient = _factory.CreateClient();
     }
 
     [SetUp]
     public void SetUp()
     {
-        _dbContext.Users.Add(new UserEntity
+        _passwordHasher = new PasswordHascher();
+        _userRegisterDto = new UserRegisterDto("user@example.com", "user", _passwordHasher.Hash("password"));
+        _dbContext.Users.Add(new UserEntity(_userRegisterDto)
         {
-            Id = Guid.NewGuid(),
-            UserName = "testUser",
-            Email = "test@example.com",
-            PasswordHash = _passwordHasher.Hash("password")
+            Id = new Guid("00000000-0000-0000-0000-000000000001")
         });
         _dbContext.SaveChanges();
     }
@@ -46,6 +45,7 @@ public sealed class UserControllerIntegrationTests : WebApplicationFactory<Progr
     [TearDown]
     public void TearDown()
     {
+        _dbContext.ChangeTracker.Clear();
         _dbContext.Users.RemoveRange(_dbContext.Users);
         _dbContext.SaveChanges();
     }
@@ -61,12 +61,7 @@ public sealed class UserControllerIntegrationTests : WebApplicationFactory<Progr
     [Test]
     public async Task ShouldRegisterUserSuccessfully()
     {
-        var newUser = new UserRegisterDto
-        {
-            UserName = "newUser",
-            Email = "newuser@example.com",
-            Password = "securepassword"
-        };
+        var newUser = new UserRegisterDto("newuser@example.com", "newUser", "securepassword");
 
         var content = new StringContent(JsonSerializer.Serialize(newUser), Encoding.UTF8, "application/json");
         var result = await _httpClient.PostAsync("/users/register", content);
@@ -77,12 +72,7 @@ public sealed class UserControllerIntegrationTests : WebApplicationFactory<Progr
     [Test]
     public async Task ShouldReturnBadRequestOnInvalidRegistration()
     {
-        var invalidUser = new UserRegisterDto
-        {
-            UserName = "",
-            Email = "invalidEmail",
-            Password = "short"
-        };
+        var invalidUser = new UserRegisterDto("invalidEmail", "", "short");
 
         var content = new StringContent(JsonSerializer.Serialize(invalidUser), Encoding.UTF8, "application/json");
         var result = await _httpClient.PostAsync("/users/register", content);
@@ -93,7 +83,7 @@ public sealed class UserControllerIntegrationTests : WebApplicationFactory<Progr
     [Test]
     public async Task ShouldLoginSuccessfully()
     {
-        var loginDto = new UserLoginDto("password", "test@example.com");
+        var loginDto = new UserLoginDto("user@example.com", "password");
 
         var content = new StringContent(JsonSerializer.Serialize(loginDto), Encoding.UTF8, "application/json");
         var result = await _httpClient.PostAsync("/users/login", content);
@@ -104,11 +94,7 @@ public sealed class UserControllerIntegrationTests : WebApplicationFactory<Progr
     [Test]
     public async Task ShouldReturnNotFoundForNonexistentUserLogin()
     {
-        var loginDto = new UserLoginDto
-        {
-            Email = "nonexistent@example.com",
-            Password = "somepassword"
-        };
+        var loginDto = new UserLoginDto("nonexistent@example.com", "password");
 
         var content = new StringContent(JsonSerializer.Serialize(loginDto), Encoding.UTF8, "application/json");
         var result = await _httpClient.PostAsync("/users/login", content);
@@ -119,11 +105,7 @@ public sealed class UserControllerIntegrationTests : WebApplicationFactory<Progr
     [Test]
     public async Task ShouldReturnBadRequestForInvalidPassword()
     {
-        var loginDto = new UserLoginDto
-        {
-            Password = "wrongpassword",
-            Email = "test@example.com"
-        };
+        var loginDto = new UserLoginDto("user@example.com", "wrongpassword");
 
         var content = new StringContent(JsonSerializer.Serialize(loginDto), Encoding.UTF8, "application/json");
         var result = await _httpClient.PostAsync("/users/login", content);

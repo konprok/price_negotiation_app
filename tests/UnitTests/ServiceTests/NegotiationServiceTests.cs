@@ -248,8 +248,9 @@ public sealed class NegotiationServiceTests
             new NegotiationEntity { Id = 2, OwnerId = userId }
         };
 
-        _userRepository.GetUser(userId).Returns(new UserEntity
-            { Id = userId, UserName = "TestUser", Email = "test@test.com", PasswordHash = "hashedpassword" });
+        UserRegisterDto userRegisterDto = new UserRegisterDto("TestUser", "test@test.com", "password");
+
+        _userRepository.GetUser(userId).Returns(new UserEntity(userRegisterDto));
         _negotiationRepository.GetNegotiationsByOwnerId(userId).Returns(negotiations);
 
         var result = await _negotiationService.GetNegotiations(userId);

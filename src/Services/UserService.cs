@@ -13,7 +13,9 @@ public sealed class UserService : IUserService
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IValidator<UserRegisterDto> _userRegisterValidator;
-    public UserService(IUserRepository userRepository, IPasswordHasher passwordHasher, IValidator<UserRegisterDto> userRegisterValidator)
+
+    public UserService(IUserRepository userRepository, IPasswordHasher passwordHasher,
+        IValidator<UserRegisterDto> userRegisterValidator)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
@@ -28,37 +30,34 @@ public sealed class UserService : IUserService
             var errors = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
             throw new InvalidArgumentException(errors);
         }
-        
-        UserEntity newUser = new()
-        {
-            UserName = user.UserName,
-            Email = user.Email,
-            PasswordHash = _passwordHasher.Hash(user.Password)
-        };
+
+        UserEntity newUser = new(user);
         await _userRepository.InsertUserAsync(newUser);
         await _userRepository.SaveAsync();
 
         return new UserResponse(newUser);
     }
-    public async Task<UserResponse> GetUser(string userEmail, string password)
+
+    public async Task<UserResponse> GetUser(UserLoginDto userLoginDto)
     {
-        if (userEmail == null) throw new InvalidArgumentException(ErrorMessages.InvalidUser);
-        var user = await _userRepository.GetUser(userEmail);
+        if (userLoginDto.Email == null) throw new InvalidArgumentException(ErrorMessages.InvalidInput);
+        var user = await _userRepository.GetUser(userLoginDto.Email);
         if (user == null)
         {
             throw new NotFoundException(ErrorMessages.UserNotFound);
         }
-        if (!_passwordHasher.Verify(password, user.PasswordHash))
+
+        if (!_passwordHasher.Verify(userLoginDto.Password, user.PasswordHash))
         {
             throw new InvalidArgumentException(ErrorMessages.InvalidPassword);
         }
-        
-        return new UserResponse(user);
+
+        UserResponse userResponse = new UserResponse(user);
+        return userResponse;
     }
 
     public async Task<UserResponse> GetUser(Guid userId)
     {
-        
         var userEntity = await _userRepository.GetUser(userId);
         if (userEntity == null)
         {
@@ -67,5 +66,4 @@ public sealed class UserService : IUserService
 
         return new UserResponse(userEntity);
     }
-    
 }

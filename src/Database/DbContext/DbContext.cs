@@ -7,18 +7,15 @@ namespace PriceNegotiationApp.Database.DbContext;
 
 public sealed class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
 {
-    private readonly IPasswordHasher _passwordHasher;
-
-    public AppDbContext(DbContextOptions<AppDbContext> options, IPasswordHasher passwordHasher) : base(options)
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
-        _passwordHasher = passwordHasher;
     }
-    
+
     public DbSet<UserEntity> Users { get; set; } = null!;
     public DbSet<ProductEntity> Products { get; set; } = null!;
     public DbSet<NegotiationEntity> Negotiations { get; set; } = null!;
     public DbSet<PropositionEntity> Propositions { get; set; } = null!;
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

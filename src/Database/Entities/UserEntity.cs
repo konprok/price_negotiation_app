@@ -1,9 +1,22 @@
+using PriceNegotiationApp.Models.Dtos;
+
 namespace PriceNegotiationApp.Database.Entities;
 
 public sealed class UserEntity
 {
-    public  Guid Id { get; set; }
-    public required string UserName { get; set; }
-    public required string PasswordHash { get; set; }
-    public required string Email { get; set; }
+    public UserEntity()
+    {
+    }
+
+    public UserEntity(UserRegisterDto userRegisterDto)
+    {
+        Email = userRegisterDto.Email;
+        UserName = userRegisterDto.UserName;
+        PasswordHash = userRegisterDto.Password;
+    }
+
+    public Guid Id { get; set; }
+    public string Email { get; set; }
+    public string UserName { get; set; }
+    public string PasswordHash { get; set; }
 }
