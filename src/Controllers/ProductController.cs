@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PriceNegotiationApp.Database.Entities;
 using PriceNegotiationApp.Models.Dtos;
 using PriceNegotiationApp.Models.Exceptions;
@@ -7,6 +8,7 @@ using PriceNegotiationApp.Services.Interfaces;
 namespace PriceNegotiationApp.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("products")]
 public sealed class ProductController : ControllerBase
 {
@@ -16,7 +18,7 @@ public sealed class ProductController : ControllerBase
     {
         _productService = productService;
     }
-
+    
     [HttpPost("user/{userId}")]
     public async Task<ActionResult<ProductEntity>> PostProduct(Guid userId, [FromBody] Product product)
     {
@@ -71,7 +73,8 @@ public sealed class ProductController : ControllerBase
             return StatusCode(500, ex.Message);
         }
     }
-
+    
+    [AllowAnonymous]
     [HttpGet("all")]
     public async Task<ActionResult<ProductEntity>> GetProducts()
     {

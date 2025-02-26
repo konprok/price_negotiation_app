@@ -1,12 +1,18 @@
+using System.Text;
 using FluentValidation;
-using PriceNegotiationApp.Database.DbContext;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using PriceNegotiationApp.Services;
-using PriceNegotiationApp.Services.Interfaces;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using PriceNegotiationApp.Database.DbContext;
 using PriceNegotiationApp.Database.Repositories;
 using PriceNegotiationApp.Database.Repositories.Interfaces;
 using PriceNegotiationApp.Models.Dtos;
+using PriceNegotiationApp.Services;
+using PriceNegotiationApp.Services.Interfaces;
+using PriceNegotiationApp.Swagger;
 using PriceNegotiationApp.Validators;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace PriceNegotiationApp;
 
@@ -25,6 +31,7 @@ public class Startup
         ConfigureSwagger(services);
         ConfigureScopedServices(services);
         ConfigureDatabaseContext(services);
+        ConfigureAuthentication(services, _configuration);
     }
 
     private static void ConfigureScopedServices(IServiceCollection services)
@@ -36,11 +43,41 @@ public class Startup
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<INegotiationService, NegotiationService>();
+        services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<INegotiationRepository, NegotiationRepository>();
         services.AddScoped<IPropositionRepository, PropositionRepository>();
         services.AddScoped<IValidator<UserRegisterDto>, UserRegisterModelValidator>();
         services.AddScoped<IValidator<Product>, ProductModelValidator>();
         services.AddSingleton<IPasswordHasher, PasswordHascher>();
+    }
+
+    private static void ConfigureAuthentication(IServiceCollection services, IConfiguration configuration)
+    {
+        var jwtSettings = configuration.GetSection("JwtSettings");
+
+        var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
+
+        services.AddAuthentication(x =>
+        {
+            x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(x =>
+        {
+            x.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidIssuer = jwtSettings["Issuer"],
+                ValidAudience = jwtSettings["Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true
+            };
+        });
+
+        services.AddAuthorization();
     }
 
     private static void ConfigureControllers(IServiceCollection services)
@@ -64,16 +101,11 @@ public class Startup
         {
             options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
         });
+        services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AppDbContext dbContext)
     {
-        if (!env.IsDevelopment())
-        {
-            app.UseExceptionHandler("/Home/Error");
-            app.UseHsts();
-        }
-
         if (env.IsDevelopment())
         {
             app.UseSwagger();
@@ -81,37 +113,15 @@ public class Startup
         }
 
         app.UseHttpsRedirection();
+        
         app.UseRouting();
 
-        app.Use(async (context, next) =>
-                {
-                    if (!context.Request.Cookies.TryGetValue("ClientId", out var anonIdStr))
-                    {
-                        var newId = Guid.NewGuid().ToString();
-                        context.Response.Cookies.Append("ClientId", newId, new CookieOptions
-                        {
-                            HttpOnly = true,
-                            SameSite = SameSiteMode.Strict,
-                            Expires = DateTimeOffset.UtcNow.AddDays(30)
-                        });
-                        context.Items["ClientId"] = newId;
-                    }
-                    else
-                    {
-                        context.Items["ClientId"] = anonIdStr;
-                    }
-
-                    await next.Invoke();
-                });
-
+        app.UseAuthentication();
         app.UseAuthorization();
 
-        app.UseEndpoints(endpoints =>
+        app.UseEndpoints(endpoint =>
         {
-            endpoints.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}")
-                .WithStaticAssets();
+            endpoint.MapControllers();
         });
     }
 }

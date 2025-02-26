@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PriceNegotiationApp.Database.Entities;
 using PriceNegotiationApp.Models.Dtos;
 using PriceNegotiationApp.Models.Exceptions;
@@ -7,6 +8,7 @@ using PriceNegotiationApp.Services.Interfaces;
 namespace PriceNegotiationApp.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("negotiations")]
 public sealed class NegotiationController : Controller
 {

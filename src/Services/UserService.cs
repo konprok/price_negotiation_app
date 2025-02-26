@@ -31,6 +31,7 @@ public sealed class UserService : IUserService
             throw new InvalidArgumentException(errors);
         }
 
+        user.Password = _passwordHasher.Hash(user.Password);
         UserEntity newUser = new(user);
         await _userRepository.InsertUserAsync(newUser);
         await _userRepository.SaveAsync();
@@ -52,8 +53,7 @@ public sealed class UserService : IUserService
             throw new InvalidArgumentException(ErrorMessages.InvalidPassword);
         }
 
-        UserResponse userResponse = new UserResponse(user);
-        return userResponse;
+        return new UserResponse(user);
     }
 
     public async Task<UserResponse> GetUser(Guid userId)
